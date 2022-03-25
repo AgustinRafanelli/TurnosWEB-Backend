@@ -15,7 +15,8 @@
   },
   "scripts": {
     "start": "nodemon server.js",
-    "postinstall": "createdb cruce"
+    "postinstall": "createdb cruce",
+    "seed": "node seed.js"
   },
   "devDependencies": {
     "nodemon": "^2.0.15"

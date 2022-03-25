@@ -5,7 +5,7 @@ const session = require("express-session")
 const passport = require("passport")
 
 const db = require("./config/db")
-const models = require("./models")
+const {User, Turn} = require("./models")
 
 const app = express()
 
@@ -22,6 +22,7 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = 3001;
+
 
 db.sync({ force: true }).then(() =>
   app.listen(PORT, () => console.log(`Listening port ${PORT}`))
