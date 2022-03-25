@@ -5,8 +5,8 @@ const passport = require("passport");
 const { isLogged } = require("./utils");
 
 router.post("/register", async (req, res) => {
-  await User.create(req.body);
-  res.send("Succesful register");
+  const user = await User.create(req.body);
+  res.send(user);
 });
 
 router.post("/login", passport.authenticate("local"), (req, res) => {
