@@ -13,4 +13,4 @@ const isAdmin = (req, res, next) => {
   else next();
 };
 
-module.exports = {isLogged, isOperator, isAdmin}
+module.exports = { isLogged, isOperator, isAdmin };

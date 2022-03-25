@@ -1,24 +1,25 @@
-const express = require("express")
-const morgan = require("morgan")
-const cookieParser = require("cookie-parser")
-const cors = require("cors")
-const session = require("express-session")
-const passport = require('passport');
-const passportConfig = require('./config/passport');
+const express = require("express");
+const morgan = require("morgan");
+const cookieParser = require("cookie-parser");
+const cors = require("cors");
+const session = require("express-session");
+const passport = require("passport");
+const passportConfig = require("./config/passport");
+const user = require("./routes/user");
+const branch = require("./routes/branch");
+const db = require("./config/db");
+const models = require("./models");
 
-const db = require("./config/db")
-const models = require("./models")
+const app = express();
 
-const app = express()
-
-app.use(morgan('dev'))
-app.use(cookieParser())
-app.use(express.json())
-app.use(cors())
+app.use(morgan("dev"));
+app.use(cookieParser());
+app.use(express.json());
+app.use(cors());
 
 app.use(
   session({
-    secret: 'user',
+    secret: "user",
     resave: true,
     saveUninitialized: true,
   })
@@ -33,9 +34,13 @@ passport.serializeUser(passportConfig.serializeUserCb);
 
 passport.deserializeUser(passportConfig.deserializeUserCb);
 
-app.use('/api', (req, res) => {
+app.use("/api", (req, res) => {
   res.sendStatus(404);
 });
+
+app.use("/users", user);
+
+app.use("/branch", branch);
 
 app.use((err, req, res, next) => {
   res.status(500).send(err.message);
@@ -43,6 +48,6 @@ app.use((err, req, res, next) => {
 
 const PORT = 3001;
 
-db.sync({ force: true }).then(() =>
+db.sync({ force: false }).then(() =>
   app.listen(PORT, () => console.log(`Listening port ${PORT}`))
 );
