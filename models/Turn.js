@@ -30,6 +30,4 @@ Turn.init(
   { sequelize, modelName: "turns" , timestamps: false}
 );
 
-console.log(new Date('2022-03-16T14:30Z'))
-
 module.exports = Turn;

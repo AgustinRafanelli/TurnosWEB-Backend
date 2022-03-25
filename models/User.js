@@ -79,11 +79,11 @@ User.init(
       },
     },
     role: {
-      type: S.DataTypes.ENUM("client", "admin", "operator", "superAdmin"),
+      type: S.DataTypes.ENUM("client", "admin", "operator"),
       defaultValue: "client",
       validate:{
         isIn: {
-          args: [["client", "admin", "operator", "superAdmin"]],
+          args: [["client", "admin", "operator"]],
           msg: "El rol indicado no existe"
         }
       }
@@ -118,6 +118,5 @@ User.beforeCreate(user => {
     })
     .then(hash => (user.password = hash));
 });
-
 
 module.exports = User;
