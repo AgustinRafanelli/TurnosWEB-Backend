@@ -1,9 +1,10 @@
 const express = require("express")
 const morgan = require("morgan")
 const cookieParser = require("cookie-parser")
-const session = require("express-session")
-const passport = require("passport")
 const cors = require("cors")
+const session = require("express-session")
+const passport = require('passport');
+const passportConfig = require('./config/passport');
 
 const db = require("./config/db")
 const models = require("./models")
@@ -12,8 +13,25 @@ const app = express()
 
 app.use(morgan('dev'))
 app.use(cookieParser())
+app.use(express.json())
 app.use(cors())
-//app.use(express.json())
+
+app.use(
+  session({
+    secret: 'user',
+    resave: true,
+    saveUninitialized: true,
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(passportConfig.localStrategyInstance);
+
+passport.serializeUser(passportConfig.serializeUserCb);
+
+passport.deserializeUser(passportConfig.deserializeUserCb);
 
 app.use('/api', (req, res) => {
   res.sendStatus(404);
