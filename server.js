@@ -4,6 +4,8 @@ const cookieParser = require("cookie-parser")
 const session = require("express-session")
 const passport = require("passport")
 const cors = require("cors")
+const passport = require('passport');
+const passportConfig = require('./config/passport');
 
 const db = require("./config/db")
 const models = require("./models")
