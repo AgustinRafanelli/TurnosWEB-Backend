@@ -6,11 +6,11 @@ const { isLogged } = require("./utils");
 
 router.post("/register", async (req, res) => {
   const user = await User.create(req.body);
-  res.send(user);
+  res.send("Succesful register");
 });
 
 router.post("/login", passport.authenticate("local"), (req, res) => {
-  res.send(req.user);
+  res.send("Succesful login");
 });
 
 router.post("/logout", (req, res) => {
@@ -20,7 +20,7 @@ router.post("/logout", (req, res) => {
 
 router.delete("/delete", isLogged, (req, res) => {
   User.destroy({ where: { id: req.user.id } });
-  res.send("Succesful delete");
+  res.send("Succesfull delete");
 });
 
 router.get("/me", isLogged, (req, res) => {
