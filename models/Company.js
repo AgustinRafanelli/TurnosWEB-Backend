@@ -1,9 +1,9 @@
 const S = require("sequelize");
 const db = require("../config/db");
 
-class Companies extends S.Model {}
+class Company extends S.Model {}
 
-Companies.init ({
+Company.init ({
     name: {
         type: S.STRING,
         allowNull: false,

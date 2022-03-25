@@ -1,7 +1,7 @@
 const S = require("sequelize");
 const db = require("../config/db");
 
-class Categories extends S.Model {}
+class Category extends S.Model {}
 
 Branches.init ({
     name: {
@@ -10,4 +10,4 @@ Branches.init ({
     },    
 }, { sequelize: db, modelName: 'categories' })
 
-module.exports = Categories;
+module.exports = Category;

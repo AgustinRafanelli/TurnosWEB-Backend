@@ -1,10 +1,10 @@
 const S = require("sequelize");
 const db = require("../config/db");
 
-class Branches extends S.Model { }
+class Branch extends S.Model { }
 
 
-Branches.init({
+Branch.init({
     name: {
         type: S.STRING,
         allowNull: false,
@@ -19,10 +19,9 @@ Branches.init({
     },
     turnRange: {
         type: S.JSON,
-        //{sunday: {start:0,end:0},monday: {start: 10, end: 19}, tuesday: {start: 10, end: 19} }
-
         allowNull: false,
+        //{sunday: {start:0,end:0},monday: {start: 10, end: 19}, tuesday: {start: 10, end: 19} }
     },
 }, { sequelize: db, modelName: 'branches' })
 
-module.exports = Branches;
+module.exports = Branch;
