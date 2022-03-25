@@ -10,7 +10,7 @@ User.create({
   .then(user => {
     Branch.create({
       name: "empanada", 
-      coords:"no se", 
+      coords: "-90.000, -180.0000", 
       maxPerTurn: 5, 
       turnRange: JSON.stringify({coso:'hola'}) })
     .then(branch => {
