@@ -1,6 +1,8 @@
 const S = require("sequelize");
 const bcrypt = require("bcrypt");
 const sequelize = require("../config/db");
+const Turn = require("./Turn");
+const Branch = require("./Branch")
 
 class User extends S.Model { }
 
@@ -118,5 +120,17 @@ User.beforeCreate(user => {
     })
     .then(hash => (user.password = hash));
 });
+
+User.prototype.newTurn = function (branchId, date){
+  return Turn.findOne({ where: { userId: this.id, state: "pending"}})
+    .then(turn => {
+      if(turn) return null
+      return Branch.findByPk(branchId)
+        .then( branch => {
+          return this.addTurn( branch, { through: { date, state: "pending" }})
+        })
+    })
+    .catch(err => console.log(err))
+}
 
 module.exports = User;
