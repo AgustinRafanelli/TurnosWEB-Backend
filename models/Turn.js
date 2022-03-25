@@ -1,4 +1,3 @@
-const { DATE } = require("sequelize");
 const S = require("sequelize");
 const sequelize = require("../config/db");
 

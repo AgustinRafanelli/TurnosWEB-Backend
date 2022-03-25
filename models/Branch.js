@@ -3,7 +3,6 @@ const db = require("../config/db");
 
 class Branch extends S.Model { }
 
-
 Branch.init({
     name: {
         type: S.STRING,
