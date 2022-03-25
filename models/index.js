@@ -1,8 +1,11 @@
 const User = require("./User")
 const Turn = require("./Turn")
-const Company = require('./Company')
-const Category = require('./Category')
 const Branch = require('./Branch')
 
+User.hasOne(Branch)
+Branch.belongsTo(User)
 
-module.exports = {User, Turn, Companies: Company, Categories: Category, Branches}
+User.belongsToMany(Branch, { through: Turn , as: 'turn'})
+Branch.belongsToMany(User, { through: Turn , as: 'turn'})
+
+module.exports = { User, Turn, Branch } 

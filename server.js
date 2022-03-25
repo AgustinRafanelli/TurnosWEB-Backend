@@ -3,6 +3,7 @@ const morgan = require("morgan")
 const cookieParser = require("cookie-parser")
 const session = require("express-session")
 const passport = require("passport")
+const cors = require("cors")
 
 const db = require("./config/db")
 const models = require("./models")
@@ -11,6 +12,7 @@ const app = express()
 
 app.use(morgan('dev'))
 app.use(cookieParser())
+app.use(cors())
 //app.use(express.json())
 
 app.use('/api', (req, res) => {
@@ -22,7 +24,6 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = 3001;
-
 
 db.sync({ force: true }).then(() =>
   app.listen(PORT, () => console.log(`Listening port ${PORT}`))
