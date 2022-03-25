@@ -30,7 +30,6 @@ routerTurn.post("/", (req,res) => {
     })
 })
 
-
 // ****************************  Rutas para Administrador **************************//
 //Actualización de state del turno
 routerTurn.put("/branch/admin/:id", (req,res) => {
