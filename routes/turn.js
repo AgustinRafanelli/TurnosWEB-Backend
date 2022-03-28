@@ -1,5 +1,6 @@
 const express = require('express');
-const routerTurn = express.Router();
+const router = express.Router();
+
 
 const { User, Turn} = require("../models/index");
 const { isLogged, isOperator } = require('./utils');
@@ -20,6 +21,7 @@ routerTurn.get("/pending/:userId", isLogged ,(req,res) => {
 })
 
 //Alta de Turno
+
 routerTurn.post("/", isLogged,(req,res) => {
     const turn = req.body;
     Turn.create(turn)
@@ -31,9 +33,9 @@ routerTurn.post("/", isLogged,(req,res) => {
     })
 })
 
-
 // ****************************  Rutas para Administrador **************************//
 //Actualización de state del turno
+
 routerTurn.put("/branch/admin/:id", isOperator, (req,res) => {
     const { state } = req.body;
     const { turnId } = req.params;
@@ -47,6 +49,7 @@ routerTurn.put("/branch/admin/:id", isOperator, (req,res) => {
 })
 
 //Turnos por sucursal
+
 routerTurn.get("/branch/:branchId",isOperator, (req,res) => {
     const { branchId } = req.params;
     Turn.findAll({where: { branchId }})
@@ -67,4 +70,4 @@ routerTurn.get("/:id",isOperator, (req,res) => {
       })
 })
 
-module.exports = routerTurn;
+module.exports = router;

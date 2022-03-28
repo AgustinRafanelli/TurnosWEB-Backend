@@ -5,8 +5,7 @@ const cors = require("cors");
 const session = require("express-session");
 const passport = require("passport");
 const passportConfig = require("./config/passport");
-const user = require("./routes/user");
-const branch = require("./routes/branch");
+const routes = require("./routes");
 const db = require("./config/db");
 const models = require("./models");
 
@@ -34,13 +33,11 @@ passport.serializeUser(passportConfig.serializeUserCb);
 
 passport.deserializeUser(passportConfig.deserializeUserCb);
 
-app.use("/api", (req, res) => {
+app.use("/", routes)
+
+app.use("/", (req, res) => {
   res.sendStatus(404);
 });
-
-app.use("/users", user);
-
-app.use("/branch", branch);
 
 app.use((err, req, res, next) => {
   res.status(500).send(err.message);
@@ -48,6 +45,6 @@ app.use((err, req, res, next) => {
 
 const PORT = 3001;
 
-db.sync({ force: false }).then(() =>
+db.sync({ force: true }).then(() =>
   app.listen(PORT, () => console.log(`Listening port ${PORT}`))
 );
