@@ -2,9 +2,10 @@ const express = require('express');
 const routerTurn = express.Router();
 
 const { User, Turn} = require("../models/index");
+const { isLogged, isOperator } = require('./utils');
 
 //Turno (1) pending para un determinado Usuario
-routerTurn.get("/pending/:userId", (req,res) => {
+routerTurn.get("/pending/:userId", isLogged ,(req,res) => {
         const {userId} = req.params
         User.findByPk({ where: {userId}})
         .then(user => {
@@ -19,7 +20,7 @@ routerTurn.get("/pending/:userId", (req,res) => {
 })
 
 //Alta de Turno
-routerTurn.post("/", (req,res) => {
+routerTurn.post("/", isLogged,(req,res) => {
     const turn = req.body;
     Turn.create(turn)
     .then(turn =>{
@@ -33,7 +34,7 @@ routerTurn.post("/", (req,res) => {
 
 // ****************************  Rutas para Administrador **************************//
 //Actualización de state del turno
-routerTurn.put("/branch/admin/:id", (req,res) => {
+routerTurn.put("/branch/admin/:id", isOperator, (req,res) => {
     const { state } = req.body;
     const { turnId } = req.params;
     Turn.update(state, {where: { id: turnId }})
@@ -46,7 +47,7 @@ routerTurn.put("/branch/admin/:id", (req,res) => {
 })
 
 //Turnos por sucursal
-routerTurn.get("/branch/:branchId", (req,res) => {
+routerTurn.get("/branch/:branchId",isOperator, (req,res) => {
     const { branchId } = req.params;
     Turn.findAll({where: { branchId }})
     .then(turns => {
@@ -55,7 +56,7 @@ routerTurn.get("/branch/:branchId", (req,res) => {
 })
 
 //Retorna un turno en particular
-routerTurn.get("/:id", (req,res) => {
+routerTurn.get("/:id",isOperator, (req,res) => {
     const {id} = req.params
     Turn.findOne({ where: {id}})
     .then(turn => {
