@@ -2,6 +2,7 @@
  * Revisa que halla un usuario logueado
  */
 const isLogged = (req, res, next) => {
+  console.log("entro")
   if (!req.user) res.sendStatus(401);
   else next();
 };

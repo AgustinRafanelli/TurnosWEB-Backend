@@ -6,19 +6,33 @@ const { isLogged } = require("./utils");
 
 router.post("/register", async (req, res) => {
   const user = await User.create(req.body);
-  res.send(user);
+  res.send({
+    id: user.id,
+    name: user.name,
+    lastname: user.lastname,
+    dni: user.dni,
+    email: user.email,
+    role: user.role,
+  });
 });
 
 router.post("/login", passport.authenticate("local"), (req, res) => {
-  res.send("Succesful login");
+  res.send({
+    id: req.user.id,
+    name: req.user.name,
+    lastname: req.user.lastname,
+    dni: req.user.dni,
+    email: req.user.email,
+    role: req.user.role,
+  });
 });
 
 router.post("/logout", (req, res) => {
   req.logout();
-  res.sendStatus(200);
+  res.status(200).send({});
 });
 
-router.delete("/delete", isLogged, (req, res) => {
+router.delete("/", isLogged, (req, res) => {
   User.destroy({ where: { id: req.user.id } });
   res.send("Succesfull delete");
 });
