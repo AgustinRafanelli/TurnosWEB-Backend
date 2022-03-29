@@ -113,7 +113,7 @@ User.prototype.hash = (password, salt) => {
 
 User.beforeCreate(user => {
   return bcrypt
-    .genSalt(16)
+    .genSalt(4)
     .then(salt => {
       user.salt = salt;
       return user.hash(user.password, user.salt);
@@ -131,6 +131,17 @@ User.prototype.newTurn = function (branchId, date){
         })
     })
     .catch(err => console.log(err))
+}
+
+User.updatePassword = function (id, password ){
+  bcrypt
+    .genSalt(4)
+    .then(salt => {
+      bcrypt.hash(password, salt)
+        .then(hash => {
+          User.update({ password: hash, salt }, { where: { id } })
+        });
+    })
 }
 
 module.exports = User;

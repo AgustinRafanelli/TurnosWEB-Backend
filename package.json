@@ -3,6 +3,7 @@
     "bcrypt": "^5.0.1",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
+    "crypto": "^1.0.1",
     "express-router": "^0.0.1",
     "express-session": "^1.17.2",
     "express.js": "^1.0.0",
