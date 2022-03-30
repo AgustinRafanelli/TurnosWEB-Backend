@@ -17,7 +17,7 @@ User.create({
       name: "empanada",
       coords: "-90.000, -180.0000",
       maxPerTurn: 4,
-      turnRange: JSON.stringify({ coso: 'hola' })
+      turnRange: JSON.stringify({ open: 9, close: 16 })
     })
       .then(branch => {
         // user.addTurn(branch, { through: { date: "2022-03-16T14:30:00.000Z", state: "pending" } })
@@ -35,4 +35,4 @@ User.create({
   .catch(console.log)
 
 let dates = Date.parse("2022-03-30" + " " + "14:30") + 7200000
-console.log(dates,"  ", Date.now())
+console.log(dates, "  ", Date.now())
