@@ -33,7 +33,6 @@ User.init(
     lastname: {
       type: S.DataTypes.STRING,
       validate: {
-
         notEmpty: {
           args: true,
           msg: "Se requiere un apellido"
@@ -63,8 +62,8 @@ User.init(
           args: true,
           msg: "El DNI debe ser un numero"
         },
-        len:{
-          args: [8,8],
+        len: {
+          args: [8, 8],
           msg: "El DNI debe tener 8 numeros"
         }
       }
@@ -83,7 +82,7 @@ User.init(
     role: {
       type: S.DataTypes.ENUM("client", "admin", "operator"),
       defaultValue: "client",
-      validate:{
+      validate: {
         isIn: {
           args: [["client", "admin", "operator"]],
           msg: "El rol indicado no existe"
@@ -121,19 +120,25 @@ User.beforeCreate(user => {
     .then(hash => (user.password = hash));
 });
 
-User.prototype.newTurn = function (branchId, date){
-  return Turn.findOne({ where: { userId: this.id, state: "pending"}})
-    .then(turn => {
-      if(turn) return null
-      return Branch.findByPk(branchId)
-        .then( branch => {
-          return this.addTurn( branch, { through: { date, state: "pending" }})
-        })
+User.prototype.newTurn = function ({branchId, date, time}) {
+  return Turn.findOne({ where: { userId: this.id, state: "pending" } })
+  .then(turn => {
+    if (turn) return "Usted ya posee un turno pendiente"
+    return Branch.findByPk(branchId)
+      .then( async branch => {
+        if(!branch) return "La sucursal elegida no existe"
+        const {count} = await Turn.findAndCountAll({ where: { branchId, date, time} })
+        if (count >= branch.maxPerTurn) return "Exede la cantidad maxima de personas por turno"
+        return this.addTurn(branch, { through: { date, time, state: "pending" } })
+          .then(turn => {
+            return "Turno creado exitosamente"
+          })
+      })
     })
     .catch(err => console.log(err))
 }
 
-User.updatePassword = function (id, password ){
+User.updatePassword = function (id, password) {
   bcrypt
     .genSalt(4)
     .then(salt => {

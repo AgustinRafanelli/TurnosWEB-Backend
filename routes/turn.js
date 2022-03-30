@@ -1,10 +1,10 @@
 const express = require("express");
-const routerTurn = express.Router();
-
-const { User, Turn } = require("../models/index");
-const { isLogged, isOperator } = require("./utils");
+const router = express.Router();
+const { User, Turn } = require("../models");
+const { isLogged, isOperator, isSameUser,isSameUserOrOpetator } = require("./utils");
 
 //Turno (1) pending para un determinado Usuario
+
 routerTurn.get("/pending/:userId", isLogged, (req, res) => {
     const { userId } = req.params;
     User.findOne({ where: { id: userId } })
@@ -19,25 +19,53 @@ routerTurn.get("/pending/:userId", isLogged, (req, res) => {
   });
 
 //Alta de Turno
-
-routerTurn.post("/", isLogged, (req, res) => {
+router.post("/", isLogged, (req, res, next) => {
   const turn = req.body;
-  Turn.create(turn)
+  const { id } = req.user
+  User.findOne({ where: { id } })
+    .then(user => {
+      user.newTurn(turn)
+        .then(turn => res.send(turn))
+    })
+    .catch(next);
+});
+
+
+router.get("/disponibility/:branchId/:date", (req, res, next) => {
+  const { branchId, date } = req.params
+  Turn.findAll({ where: { branchId, date } })
+    .then(turns => {
+      if (!turns) return res.sendStatus(400)
+      let disponibility = {}
+      turns.map(turn => {
+        if (disponibility[turn.time]) disponibility[turn.time]++
+        else disponibility[turn.time] = 1
+      })
+      res.send(disponibility)
+    })
+    .catch(next)
+});
+
+//Cancela turno
+router.put("/cancel/:id", isSameUser, (req, res) => {
+  Turn.findOne({ where: { userId: req.params.id } })
     .then((turn) => {
-      res.send(turn);
+      if (Date.parse(turn.date + " " + turn.time) + 7200000 < Date.now()) {
+        return res.status(400).send("No se pueden cancelar turnos a menos de 2 horas de su horario")
+      }
+      turn.update({ state: "canceled" })
+        .then(turn => res.status(204).send(turn))
     })
     .catch((err) => {
       console.log(err);
     });
 });
 
-// ****************************  Rutas para Operador **************************//
+// ****************************  Rutas para Administrador **************************//
 //Actualización de state del turno
-
-routerTurn.put("/:id", isOperator, (req, res) => {
-  const { state } = req.body;
-  const { turnId } = req.params;
-  Turn.update(state, { where: { id: turnId } })
+router.put("/assist/:userId", isOperator, (req, res) => {
+  const { userId } = req.params;
+  Turn.update({ state: "assisted" }, { where: { userId } })
     .then((turn) => {
       res.send(turn);
     })
@@ -47,8 +75,7 @@ routerTurn.put("/:id", isOperator, (req, res) => {
 });
 
 //Turnos por sucursal
-
-routerTurn.get("/branch/:branchId", isOperator, (req, res) => {
+router.get("/branch/:branchId", isOperator, (req, res) => {
   const { branchId } = req.params;
   Turn.findAll({ where: { branchId } }).then((turns) => {
     res.status(200).send(turns);
@@ -56,7 +83,7 @@ routerTurn.get("/branch/:branchId", isOperator, (req, res) => {
 });
 
 //Retorna un turno en particular
-routerTurn.get("/:id", isOperator, (req, res) => {
+router.get("/:id", isOperator, (req, res) => {
   const { id } = req.params;
   Turn.findOne({ where: { id } })
     .then((turn) => {
@@ -67,4 +94,4 @@ routerTurn.get("/:id", isOperator, (req, res) => {
     });
 });
 
-module.exports = routerTurn;
+module.exports = router;
