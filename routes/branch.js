@@ -8,7 +8,7 @@ router.post("/register", isLogged, isAdmin, async (req, res) => {
   res.send(branch);
 });
 
-router.get("/all", async (req, res) => {
+router.get("/all",isLogged, async (req, res) => {
   const branchs = await Branch.findAll();
   return res.send(branchs);
 });

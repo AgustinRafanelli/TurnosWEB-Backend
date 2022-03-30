@@ -6,17 +6,17 @@ const { isLogged, isOperator } = require("./utils");
 
 //Turno (1) pending para un determinado Usuario
 routerTurn.get("/pending/:userId", isLogged, (req, res) => {
-  const { userId } = req.params;
-  User.findByPk({ where: { userId } })
-    .then((user) => {
-      Turn.findOne({ where: { userId, state: "pending" } }).then((turn) => {
-        res.status(200).send(turn);
+    const { userId } = req.params;
+    User.findOne({ where: { id: userId } })
+      .then((user) => {
+        Turn.findOne({ where: { userId, state: "pending" } }).then((turn) => {
+          res.status(200).send(turn);
+        });
+      })
+      .catch((err) => {
+        console.log(err);
       });
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-});
+  });
 
 //Alta de Turno
 
@@ -31,10 +31,10 @@ routerTurn.post("/", isLogged, (req, res) => {
     });
 });
 
-// ****************************  Rutas para Administrador **************************//
+// ****************************  Rutas para Operador **************************//
 //Actualización de state del turno
 
-routerTurn.put("/branch/admin/:id", isOperator, (req, res) => {
+routerTurn.put("/:id", isOperator, (req, res) => {
   const { state } = req.body;
   const { turnId } = req.params;
   Turn.update(state, { where: { id: turnId } })
