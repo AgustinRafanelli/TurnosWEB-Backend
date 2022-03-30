@@ -27,4 +27,9 @@ router.delete("/:id", isAdmin, (req, res) => {
   res.send("Sucursal eliminada");
 });
 
+router.get("/all",isLogged, async (req, res) => {
+  const branchs = await Branch.findAll();
+  res.send(branchs);
+});
+
 module.exports = router;
