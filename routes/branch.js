@@ -8,18 +8,18 @@ router.post("/register", isAdmin, async (req, res) => {
   res.send(branch);
 });
 
-router.get("/:id", (req, res, next) => {
-  Branch.findByPk(req.params.id)
-    .then(branch => {
-      if(!branch) return res.sendStatus(400)
-      res.send(branch)
-    })
-    .catch(next)
-});
-
 router.get("/all", async (req, res) => {
   const branchs = await Branch.findAll();
   return res.send(branchs);
+});
+
+router.get("/:id", (req, res, next) => {
+  Branch.findByPk(req.params.id)
+    .then(branch => {
+      if(!branch) return res.sendStatus(400)  
+      res.send(branch)
+    })
+    .catch(next)
 });
 
 router.delete("/:id", isAdmin, (req, res) => {

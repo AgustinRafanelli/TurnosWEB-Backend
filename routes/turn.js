@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { User, Turn } = require("../models");
-const { isLogged, isOperator, isSameUserOrOpetator} = require("./utils");
+const { isLogged, isOperator, isSameUser,isSameUserOrOpetator } = require("./utils");
 
 //Turno (1) pending para un determinado Usuario
 
@@ -19,20 +19,15 @@ routerTurn.get("/pending/:userId", isLogged, (req, res) => {
   });
 
 //Alta de Turno
-router.post("/", isLogged, (req, res) => {
+router.post("/", isLogged, (req, res, next) => {
   const turn = req.body;
   const { id } = req.user
   User.findOne({ where: { id } })
     .then(user => {
       user.newTurn(turn)
-        .then(turn => {
-          if( typeof turn === "string") return res.status(400).send(turn)
-          res.send(turn[0])
-        })
+        .then(turn => res.send(turn))
     })
-    .catch((err) => {
-      console.log(err);
-    });
+    .catch(next);
 });
 
 
@@ -52,9 +47,8 @@ router.get("/disponibility/:branchId/:date", (req, res, next) => {
 });
 
 //Cancela turno
-router.put("/cancel/:userId", isSameUserOrOpetator, (req, res) => {
-  const { userId } = req.params;
-  Turn.findOne({ where: { userId } })
+router.put("/cancel/:id", isSameUser, (req, res) => {
+  Turn.findOne({ where: { userId: req.params.id } })
     .then((turn) => {
       if (Date.parse(turn.date + " " + turn.time) + 7200000 < Date.now()) {
         return res.status(400).send("No se pueden cancelar turnos a menos de 2 horas de su horario")
@@ -71,7 +65,6 @@ router.put("/cancel/:userId", isSameUserOrOpetator, (req, res) => {
 //Actualización de state del turno
 router.put("/assist/:userId", isOperator, (req, res) => {
   const { userId } = req.params;
-  console.log(req.user)
   Turn.update({ state: "assisted" }, { where: { userId } })
     .then((turn) => {
       res.send(turn);

@@ -21,8 +21,7 @@ User.create({
     })
       .then(branch => {
         // user.addTurn(branch, { through: { date: "2022-03-16T14:30:00.000Z", state: "pending" } })
-        user.newTurn({ branchId: branch.id, date: "2022-03-16", time: "14:30" })
-          .then(console.log)
+        user.newTurn({ branchId: branch.id, date: "2022-04-19", time: "14:30" })
       })
       .then(() => {
         Turn.create({ date: "2022-03-16", time: "14:30", state: "pending", branchId: 1, userId: 1 })
@@ -33,6 +32,3 @@ User.create({
       .catch(console.log)
   })
   .catch(console.log)
-
-let dates = Date.parse("2022-03-30" + " " + "14:30") + 7200000
-console.log(dates, "  ", Date.now())

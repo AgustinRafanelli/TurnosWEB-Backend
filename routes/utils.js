@@ -11,7 +11,7 @@ const isLogged = (req, res, next) => {
  */
 const isSameUser = (req, res, next) => {
   if (!req.user) res.status(401).send("Not Logged")
-  if (req.user.id != req.params.id) res.status(401).send("Usuario equivocado")
+  else if (req.user.id != req.params.id) res.status(401).send("Usuario equivocado")
   else next();
 };
 
@@ -20,7 +20,7 @@ const isSameUser = (req, res, next) => {
  */
 const isSameUserOrOpetator = (req, res, next) => {
   if (!req.user) res.status(401).send("Not Logged")
-  if (req.user.id == req.params.id || req.user.role === "operator") next()
+  else if (req.user.id === req.params.id || req.user.role === "operator") next()
   else res.status(401).send("Usuario equivocado")
 };
 
@@ -29,7 +29,7 @@ const isSameUserOrOpetator = (req, res, next) => {
  */
 const isOperator = (req, res, next) => {
   if (!req.user) res.status(401).send("Not Logged")
-  if (req.user.role !== "operator") res.sendStatus(401);
+  else if (req.user.role !== "operator") res.sendStatus(401);
   else next();
 };
 
