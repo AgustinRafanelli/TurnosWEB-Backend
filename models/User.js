@@ -127,6 +127,7 @@ User.prototype.newTurn = function ({branchId, date, time}) {
     if (turn) return null
       return Branch.findByPk(branchId)
         .then( async branch => {
+          console.log('NewTurn: ',branch)
           if(!branch) return "La sucursal elegida no existe"
           const {count} = await Turn.findAndCountAll({ where: { branchId: branch.id, date: "2022-03-16", time: "14:30" } })
           if (count >= branch.maxPerTurn) return "Exede la cantidad maxima de personas por turno"
