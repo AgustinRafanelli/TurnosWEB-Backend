@@ -33,7 +33,6 @@ User.init(
     lastname: {
       type: S.DataTypes.STRING,
       validate: {
-
         notEmpty: {
           args: true,
           msg: "Se requiere un apellido"
@@ -128,9 +127,12 @@ User.prototype.newTurn = function ({branchId, date, time}) {
     return Branch.findByPk(branchId)
       .then( async branch => {
         if(!branch) return "La sucursal elegida no existe"
-        const {count} = await Turn.findAndCountAll({ where: { branchId: branch.id, date: "2022-03-16", time: "14:30" } })
+        const {count} = await Turn.findAndCountAll({ where: { branchId, date, time} })
         if (count >= branch.maxPerTurn) return "Exede la cantidad maxima de personas por turno"
         return this.addTurn(branch, { through: { date, time, state: "pending" } })
+          .then(turn => {
+            return "Turno creado exitosamente"
+          })
       })
     })
     .catch(err => console.log(err))
