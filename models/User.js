@@ -124,15 +124,14 @@ User.beforeCreate(user => {
 User.prototype.newTurn = function ({branchId, date, time}) {
   return Turn.findOne({ where: { userId: this.id, state: "pending" } })
   .then(turn => {
-    if (turn) return null
-      return Branch.findByPk(branchId)
-        .then( async branch => {
-          console.log('NewTurn: ',branch)
-          if(!branch) return "La sucursal elegida no existe"
-          const {count} = await Turn.findAndCountAll({ where: { branchId: branch.id, date: "2022-03-16", time: "14:30" } })
-          if (count >= branch.maxPerTurn) return "Exede la cantidad maxima de personas por turno"
-          return this.addTurn(branch, { through: { date, time, state: "pending" } })
-        })
+    if (turn) return "Usted ya posee un turno pendiente"
+    return Branch.findByPk(branchId)
+      .then( async branch => {
+        if(!branch) return "La sucursal elegida no existe"
+        const {count} = await Turn.findAndCountAll({ where: { branchId: branch.id, date: "2022-03-16", time: "14:30" } })
+        if (count >= branch.maxPerTurn) return "Exede la cantidad maxima de personas por turno"
+        return this.addTurn(branch, { through: { date, time, state: "pending" } })
+      })
     })
     .catch(err => console.log(err))
 }

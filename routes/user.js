@@ -84,7 +84,7 @@ router.post("/password/forgot", (req, res) => {
 router.get("/password/reset/:token", (req, res) => {
   Token.findOne({ where: { token: req.params.token } })
     .then(token => {
-      if (!token || token.createdAt + 3600000 > Date.now()) return res.status(401).send("El token de reinicio de clave es incorrecto o ya esta vencido")
+      if (!token || Date.parse(token.createdAt) + 3600000 > Date.now()) return res.status(401).send("El token de reinicio de clave es incorrecto o ya esta vencido")
       res.sendStatus(200)
     })
 });
@@ -92,7 +92,7 @@ router.get("/password/reset/:token", (req, res) => {
 router.post("/password/reset/:token", (req, res) => {
   Token.findOne({ where: { token: req.params.token } })
     .then(token => {
-      if (!token || token.createdAt + 3600000 > Date.now() ) return res.status(401).send("El token de reinicio de clave es incorrecto o ya esta vencido")
+      if (!token || Date.parse(token.createdAt) + 3600000 > Date.now() ) return res.status(401).send("El token de reinicio de clave es incorrecto o ya esta vencido")
       User.updatePassword(token.userId, req.body.password )
       res.sendStatus(204)
     })
