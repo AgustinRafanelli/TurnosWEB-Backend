@@ -4,18 +4,19 @@ const { User, Turn } = require("../models");
 const { isLogged, isOperator } = require("./utils");
 
 //Turno (1) pending para un determinado Usuario
-router.get("/pending/:userId", isLogged, (req, res) => {
-  const { userId } = req.params;
-  User.findByPk({ where: { userId } })
-    .then((user) => {
-      Turn.findOne({ where: { userId, state: "pending" } }).then((turn) => {
-        res.status(200).send(turn);
+
+routerTurn.get("/pending/:userId", isLogged, (req, res) => {
+    const { userId } = req.params;
+    User.findOne({ where: { id: userId } })
+      .then((user) => {
+        Turn.findOne({ where: { userId, state: "pending" } }).then((turn) => {
+          res.status(200).send(turn);
+        });
+      })
+      .catch((err) => {
+        console.log(err);
       });
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-});
+  });
 
 //Alta de Turno
 router.post("/", isLogged, (req, res) => {
@@ -30,6 +31,7 @@ router.post("/", isLogged, (req, res) => {
       console.log(err);
     });
 });
+
 
 router.get("/disponibility/:branchId/:date", (req, res, next) => {
   const { branchId, date } = req.params
