@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { User, Turn } = require("../models");
-const { isLogged, isOperator } = require("./utils");
+const { isLogged, isOperator, isSameUserOrOpetator} = require("./utils");
 
 //Turno (1) pending para un determinado Usuario
 
@@ -22,10 +22,13 @@ routerTurn.get("/pending/:userId", isLogged, (req, res) => {
 router.post("/", isLogged, (req, res) => {
   const turn = req.body;
   const { id } = req.user
-  User.findOne({where: {id}})
+  User.findOne({ where: { id } })
     .then(user => {
       user.newTurn(turn)
-        .then(turn => res.send(turn[0]))
+        .then(turn => {
+          if( typeof turn === "string") return res.status(400).send(turn)
+          res.send(turn[0])
+        })
     })
     .catch((err) => {
       console.log(err);
@@ -40,7 +43,7 @@ router.get("/disponibility/:branchId/:date", (req, res, next) => {
       if (!turns) return res.sendStatus(400)
       let disponibility = {}
       turns.map(turn => {
-        if(disponibility[turn.time]) disponibility[turn.time]++
+        if (disponibility[turn.time]) disponibility[turn.time]++
         else disponibility[turn.time] = 1
       })
       res.send(disponibility)
@@ -48,13 +51,28 @@ router.get("/disponibility/:branchId/:date", (req, res, next) => {
     .catch(next)
 });
 
+//Cancela turno
+router.put("/cancel/:userId", isSameUserOrOpetator, (req, res) => {
+  const { userId } = req.params;
+  Turn.findOne({ where: { userId } })
+    .then((turn) => {
+      if (Date.parse(turn.date + " " + turn.time) + 7200000 < Date.now()) {
+        return res.status(400).send("No se pueden cancelar turnos a menos de 2 horas de su horario")
+      }
+      turn.update({ state: "canceled" })
+        .then(turn => res.status(204).send(turn))
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
+
 // ****************************  Rutas para Administrador **************************//
 //Actualización de state del turno
-router.put("/:userId", isOperator, (req, res) => {
-  const { state } = req.body;
+router.put("/assist/:userId", isOperator, (req, res) => {
   const { userId } = req.params;
   console.log(req.user)
-  Turn.update(state, { where: { userId } })
+  Turn.update({ state: "assisted" }, { where: { userId } })
     .then((turn) => {
       res.send(turn);
     })
