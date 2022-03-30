@@ -7,16 +7,17 @@ const { isLogged, isSameUser } = require("./utils");
 const Token = require("../models/Token");
 const { serializeUser } = require("passport");
 
-router.post("/register", async (req, res) => {
-  const user = await User.create(req.body);
-  res.send({
-    id: user.id,
-    name: user.name,
-    lastname: user.lastname,
-    dni: user.dni,
-    email: user.email,
-    role: user.role,
-  });
+router.post("/register", (req, res) => {
+  User.create(req.body)
+  .then( user => res.send({
+                          id: user.id,
+                          name: user.name,
+                          lastname: user.lastname,
+                          dni: user.dni,
+                          email: user.email,
+                          role: user.role,
+                        }) )
+  .catch( error => res.status(400).send("Usuario existente") )
 });
 
 router.post("/login", passport.authenticate("local"), (req, res) => {
