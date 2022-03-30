@@ -1,11 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const passport = require("passport");
-const User = require("../models/User");
 const crypto = require('crypto')
 const { isLogged, isSameUser } = require("./utils");
+const User = require("../models/User");
 const Token = require("../models/Token");
-const { serializeUser } = require("passport");
 
 router.post("/register", async (req, res) => {
   const user = await User.create(req.body);
@@ -17,7 +16,7 @@ router.post("/register", async (req, res) => {
     email: user.email,
     role: user.role,
   });
-});
+})
 
 router.post("/login", passport.authenticate("local"), (req, res) => {
   res.send({
@@ -30,7 +29,31 @@ router.post("/login", passport.authenticate("local"), (req, res) => {
   });
 });
 
-router.put("/password/change/:id", isLogged, isSameUser, passport.authenticate('local'), (req, res) => {
+router.post("/logout", (req, res) => {
+  req.logout();
+  res.status(200).send({});
+});
+
+router.delete("/", isLogged, (req, res) => {
+  User.destroy({ where: { id: req.user.id } });
+  res.send("Succesfull delete");
+});
+
+router.get("/me", isLogged, (req, res) => {
+  const { id, name, lastname, dni, email, role } = req.user;
+  const user = {
+    id: id,
+    name: name,
+    lastname: lastname,
+    dni: dni,
+    email: email,
+    role: role,
+  };
+  res.send(user);
+});
+
+//Password 
+router.put("/password/change/:id", isSameUser, passport.authenticate('local'), (req, res) => {
   User.updatePassword(req.params.id, req.body.newPassword)
   res.sendStatus(204)
 });
@@ -40,7 +63,7 @@ router.post("/password/forgot", (req, res) => {
     .then(user => {
       if (!user) return res.send("No existe un usuario con ese email")
       user.createToken({ token: crypto.randomBytes(20).toString('hex') })
-        .then(token => {
+      .then(token => {
           const resetEmail = {
             to: user.email,
             from: 'passwordreset@turnosweb.com',
@@ -73,29 +96,6 @@ router.post("/password/reset/:token", (req, res) => {
       User.updatePassword(token.userId, req.body.password )
       res.sendStatus(204)
     })
-});
-
-router.post("/logout", (req, res) => {
-  req.logout();
-  res.status(200).send({});
-});
-
-router.delete("/", isLogged, (req, res) => {
-  User.destroy({ where: { id: req.user.id } });
-  res.send("Succesfull delete");
-});
-
-router.get("/me", isLogged, (req, res) => {
-  const { id, name, lastname, dni, email, role } = req.user;
-  const user = {
-    id: id,
-    name: name,
-    lastname: lastname,
-    dni: dni,
-    email: email,
-    role: role,
-  };
-  res.send(user);
 });
 
 module.exports = router;
