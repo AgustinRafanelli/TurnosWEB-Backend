@@ -67,7 +67,7 @@ router.put("/password/change/:id", isSameUser, passport.authenticate('local'), (
 router.post("/password/forgot", (req, res) => {
   User.findOne({ where: { email: req.body.email } })
     .then(user => {
-      if (!user) return res.send("No existe un usuario con ese email")
+      if (!user) return res.status(400).send("No existe un usuario con ese email")
       user.createToken({ token: crypto.randomBytes(20).toString('hex') })
       .then(token => {
         sgMail.send(emails.resetEmail(user.email, req.headers.host, token.token))
