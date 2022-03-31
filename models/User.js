@@ -142,10 +142,11 @@ User.updatePassword = function (id, password) {
   return bcrypt
     .genSalt(4)
     .then(salt => {
-      bcrypt.hash(password, salt)
+      return bcrypt.hash(password, salt)
         .then(hash => {
           return User.update({ password: hash, salt }, { where: { id }, returning: true })
-        });
+        })
+        .then(user => user[1])
     })
 }
 
