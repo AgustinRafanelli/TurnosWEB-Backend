@@ -139,13 +139,14 @@ User.prototype.newTurn = function ({branchId, date, time}) {
 }
 
 User.updatePassword = function (id, password) {
-  bcrypt
+  return bcrypt
     .genSalt(4)
     .then(salt => {
-      bcrypt.hash(password, salt)
+      return bcrypt.hash(password, salt)
         .then(hash => {
-          User.update({ password: hash, salt }, { where: { id } })
-        });
+          return User.update({ password: hash, salt }, { where: { id }, returning: true })
+        })
+        .then(user => user[1])
     })
 }
 

@@ -5,6 +5,8 @@ const crypto = require('crypto')
 const { isLogged, isSameUser } = require("./utils");
 const User = require("../models/User");
 const Token = require("../models/Token");
+const sgMail = require('../config/sendgrid')
+const emails = require('./emailTemplates')
 
 router.post("/register", (req, res) => {
   User.create(req.body)
@@ -56,7 +58,10 @@ router.get("/me", isLogged, (req, res) => {
 //Password 
 router.put("/password/change/:id", isSameUser, passport.authenticate('local'), (req, res) => {
   User.updatePassword(req.params.id, req.body.newPassword)
-  res.sendStatus(204)
+    .then(user => {
+      sgMail.send(changePasswordEmail(user.email))
+      res.sendStatus(204)
+    })
 });
 
 router.post("/password/forgot", (req, res) => {
@@ -65,17 +70,7 @@ router.post("/password/forgot", (req, res) => {
       if (!user) return res.send("No existe un usuario con ese email")
       user.createToken({ token: crypto.randomBytes(20).toString('hex') })
       .then(token => {
-          const resetEmail = {
-            to: user.email,
-            from: 'passwordreset@turnosweb.com',
-            subject: 'TurnosWeb',
-            text: `
-            Esta recibiendo este email porque usted (u otra persona) a redido el reinicio de clave de su cuenta.
-            Porfavor clickee el siguiente link para completar el proceso:
-            http://${req.headers.host}/reset/${user.id}/${token}
-            Si no fue usted quien requirio esto porfavor ignore el email y su clave continuara siendo la misma.
-            `,
-          };
+        sgMail.send(emails.resetEmail(user.email, req.headers.host, token.token))
           res.send(token)
         })
     })
@@ -85,7 +80,7 @@ router.post("/password/forgot", (req, res) => {
 router.get("/password/reset/:token", (req, res) => {
   Token.findOne({ where: { token: req.params.token } })
     .then(token => {
-      if (!token || Date.parse(token.createdAt) + 3600000 > Date.now()) return res.status(401).send("El token de reinicio de clave es incorrecto o ya esta vencido")
+      if (!token || token.createdAt + 3600000 > Date.now()) return res.status(401).send("El token de reinicio de clave es incorrecto o ya esta vencido")
       res.sendStatus(200)
     })
 });
@@ -93,10 +88,14 @@ router.get("/password/reset/:token", (req, res) => {
 router.post("/password/reset/:token", (req, res) => {
   Token.findOne({ where: { token: req.params.token } })
     .then(token => {
-      if (!token || Date.parse(token.createdAt) + 3600000 > Date.now() ) return res.status(401).send("El token de reinicio de clave es incorrecto o ya esta vencido")
+      if (!token || token.createdAt + 3600000 > Date.now() ) return res.status(401).send("El token de reinicio de clave es incorrecto o ya esta vencido")
       User.updatePassword(token.userId, req.body.password )
-      res.sendStatus(204)
+        .then(user => {
+          sgMail.send(changePasswordEmail(user.email))
+          res.sendStatus(204)
+        })
     })
+    .catch(err => res.status(400).send(err))
 });
 
-module.exports = router;
+module.exports = router;  

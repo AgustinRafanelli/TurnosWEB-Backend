@@ -18,6 +18,14 @@ const usersList = [
     role: "client",
     password: "12345678",
   },
+  {
+    name: "Agustin",
+    lastname: "Rafanelli",
+    dni: "12345678",
+    email: "agustinrafa1995@gmail.com",
+    role: "client",
+    password: "12345678",
+  }
 ];
 const branchList = [
   {
