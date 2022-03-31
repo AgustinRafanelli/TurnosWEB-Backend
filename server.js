@@ -8,6 +8,7 @@ const passportConfig = require("./config/passport");
 const routes = require("./routes");
 const db = require("./config/db");
 const models = require("./models");
+const cron = require("./config/cron");
 
 const app = express();
 
