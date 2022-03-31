@@ -16,7 +16,7 @@ router.post("/register", (req, res) => {
       email: user.email,
       role: user.role,
     }) )
-    .catch( error => res.status(400).send("Usuario existente") )
+    .catch( error => res.status(400).send(error) )
 });
 
 router.post("/login", passport.authenticate("local"), (req, res) => {

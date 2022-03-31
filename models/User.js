@@ -16,7 +16,7 @@ User.init(
           msg: "Se requiere un nombre"
         },
         is: {
-          args: ["^[a-z]+$", 'i'],
+          args: /^[a-zA-ZÀ-ÿ\u00f1\u00d1]+(\s*[a-zA-ZÀ-ÿ\u00f1\u00d1]*)*[a-zA-ZÀ-ÿ\u00f1\u00d1]+$/g,
           msg: "Solo se permiten letras en el nombre"
         },
         max: {
@@ -38,7 +38,7 @@ User.init(
           msg: "Se requiere un apellido"
         },
         is: {
-          args: ["^[a-z]+$", 'i'],
+          args: /^[a-zA-ZÀ-ÿ\u00f1\u00d1]+(\s*[a-zA-ZÀ-ÿ\u00f1\u00d1]*)*[a-zA-ZÀ-ÿ\u00f1\u00d1]+$/g,
           msg: "Solo se permiten letras en el apellido"
         },
         max: {

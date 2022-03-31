@@ -8,15 +8,15 @@ router.post("/register", isAdmin, async (req, res) => {
     name: req.body.name ,
     lastname: "TurnosWEB",
     email: req.body.email ,
-    dni: 00000000,
+    dni: 11111111,
     role: "operator",
     password: req.body.password,
   }
   const brachBody = {
-    name: req.body.name,
+    name: req.body.name,  
     coords: req.body.coords ,
     maxPerTurn: req.body.maxPerTurn,
-    turnRange:req.body.turnRange
+    turnRange: JSON.stringify(req.body.turnRange)
   }
   User.create(userBody)
     .then(user => {

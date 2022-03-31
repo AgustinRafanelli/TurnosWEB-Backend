@@ -5,7 +5,7 @@ const { isLogged, isOperator, isSameUser,isSameUserOrOpetator } = require("./uti
 
 //Turno (1) pending para un determinado Usuario
 
-routerTurn.get("/pending/:userId", isLogged, (req, res) => {
+router.get("/pending/:userId", isLogged, (req, res) => {
     const { userId } = req.params;
     User.findOne({ where: { id: userId } })
       .then((user) => {
