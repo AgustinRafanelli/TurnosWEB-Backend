@@ -5,6 +5,7 @@ const crypto = require('crypto')
 const { isLogged, isSameUser } = require("./utils");
 const User = require("../models/User");
 const Token = require("../models/Token");
+const sgMail = require('../config/sendgrid')
 
 router.post("/register", (req, res) => {
   User.create(req.body)
@@ -56,6 +57,20 @@ router.get("/me", isLogged, (req, res) => {
 //Password 
 router.put("/password/change/:id", isSameUser, passport.authenticate('local'), (req, res) => {
   User.updatePassword(req.params.id, req.body.newPassword)
+    .then(user => {
+      console.log(user)
+      /* const changePasswordEmail = {
+        to: user.email,
+        from: 'turnoswebp5@gmail.com',
+        subject: 'Aviso de cambio de contraseña',
+        html: `
+            <p>Esta recibiendo este email porque <strong>su contraseña</strong> a sido cambiada exitosamente.<br/>
+            Si no fue usted quien requirio esto, porfavor pida un cambio de clave urgentemente.</p>
+            `,
+      };
+      sgMail.send(changePasswordEmail) */
+      res.sendStatus(204)
+    })
   res.sendStatus(204)
 });
 
@@ -67,15 +82,16 @@ router.post("/password/forgot", (req, res) => {
       .then(token => {
           const resetEmail = {
             to: user.email,
-            from: 'passwordreset@turnosweb.com',
+            from: 'turnoswebp5@gmail.com',
             subject: 'TurnosWeb',
-            text: `
-            Esta recibiendo este email porque usted (u otra persona) a redido el reinicio de clave de su cuenta.
-            Porfavor clickee el siguiente link para completar el proceso:
-            http://${req.headers.host}/reset/${user.id}/${token}
-            Si no fue usted quien requirio esto porfavor ignore el email y su clave continuara siendo la misma.
+            html: `
+            <p>Esta recibiendo este email porque <strong>usted (u otra persona)</strong> a redido el reinicio de clave de su cuenta.<br/>
+            Porfavor clickee el siguiente link para completar el proceso:<br/>
+            http://${req.headers.host}/reset/${token} <br/>
+            Si no fue usted quien requirio esto porfavor ignore el email y su clave continuara siendo la misma.</p>
             `,
           };
+          sgMail.send(resetEmail)
           res.send(token)
         })
     })

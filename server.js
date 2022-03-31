@@ -45,6 +45,6 @@ app.use((err, req, res, next) => {
 
 const PORT = 3001;
 
-db.sync({ force: true }).then(() =>
+db.sync({ force: false }).then(() =>
   app.listen(PORT, () => console.log(`Listening port ${PORT}`))
 );
