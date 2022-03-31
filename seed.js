@@ -1,34 +1,111 @@
-const { User, Turn, Branch } = require("./models")
+const db = require("./config/db");
+const { User, Turn, Branch } = require("./models");
 
-User.create({ name: "Agustin", lastname: "Rafanelli", dni: "12345688", email: "agustinrafa1995@hotmail.com", role: "admin", password: "12345678" })
-User.create({ name: "Juancarlo", lastname: "Chupapija", dni: "12345888", email: "Juancarlo@hotmail.com", role: "client", password: "12345678" })
-User.create({ name: "El", lastname: "Fantasma", dni: "12348888", email: "ElFantasma@hotmail.com", role: "client", password: "12345678" })
-User.create({ name: "Nico", lastname: "Requejo", dni: "12388888", email: "requejo@hotmail.com", role: "client", password: "12345678" })
-User.create({
-  name: "Agustin",
-  lastname: "Rafanelli",
-  dni: "12345678",
-  email: "agustinrafa1995@gmail.com",
-  role: "client",
-  password: "12345678"
-})
-  .then(user => {
-    Branch.create({
-      name: "empanada",
-      coords: "-90.000, -180.0000",
-      maxPerTurn: 4,
-      turnRange: JSON.stringify({ open: 9, close: 16 })
+const usersList = [
+  {
+    name: "admin",
+    lastname: "admin",
+    dni: "12345678",
+    email: "admin@admin.com",
+    role: "admin",
+    password: "12345678",
+  },
+  {
+    name: "fake",
+    lastname: "fake",
+    dni: "12345678",
+    email: "user@fake.com",
+    role: "client",
+    password: "12345678",
+  },
+];
+const branchList = [
+  {
+    name: "SUCURSAL A",
+    coords: "-90.000, -180.0000",
+    maxPerTurn: 1,
+    turnRange: JSON.stringify({ open: 10, close: 14 }),
+  },
+  {
+    name: "SUCURSAL B",
+    coords: "-90.000, -180.0000",
+    maxPerTurn: 2,
+    turnRange: JSON.stringify({ open: 9, close: 13 }),
+  },
+  {
+    name: "SUCURSAL C",
+    coords: "-90.000, -180.0000",
+    maxPerTurn: 4,
+    turnRange: JSON.stringify({ open: 8, close: 12 }),
+  },
+  {
+    name: "SUCURSAL D",
+    coords: "-90.000, -180.0000",
+    maxPerTurn: 4,
+    turnRange: JSON.stringify({ open: 8, close: 12 }),
+  },
+  {
+    name: "SUCURSAL E",
+    coords: "-90.000, -180.0000",
+    maxPerTurn: 4,
+    turnRange: JSON.stringify({ open: 8, close: 12 }),
+  },
+  {
+    name: "SUCURSAL F",
+    coords: "-90.000, -180.0000",
+    maxPerTurn: 4,
+    turnRange: JSON.stringify({ open: 8, close: 12 }),
+  },
+  {
+    name: "SUCURSAL G",
+    coords: "-90.000, -180.0000",
+    maxPerTurn: 4,
+    turnRange: JSON.stringify({ open: 8, close: 12 }),
+  },
+  {
+    name: "SUCURSAL H",
+    coords: "-90.000, -180.0000",
+    maxPerTurn: 4,
+    turnRange: JSON.stringify({ open: 8, close: 12 }),
+  },
+];
+
+const setupSeed = async () => {
+  console.log("SEED STARTING");
+
+  const users = await Promise.all(
+    usersList.map(async (user) => {
+      return await User.create(user);
     })
-      .then(branch => {
-        // user.addTurn(branch, { through: { date: "2022-03-16T14:30:00.000Z", state: "pending" } })
-        user.newTurn({ branchId: branch.id, date: "2022-04-19", time: "14:30" })
+  );
+  //const branch = await Branch.bulkCreate(branchList);
+
+  const branch = await Promise.all(
+    branchList.map(async (branch, i) => {
+      return await User.create({
+        name: branch.name,
+        lastname: "TurnosWEB",
+        dni: "12345678",
+        email: `user${i}@fake.com`,
+        role: "operator",
+        password: "12345678",
       })
-      .then(() => {
-        Turn.create({ date: "2022-03-16", time: "14:30", state: "pending", branchId: 1, userId: 1 })
-        Turn.create({ date: "2022-03-16", time: "14:00", state: "pending", branchId: 1, userId: 2 })
-        Turn.create({ date: "2022-03-16", time: "15:30", state: "pending", branchId: 1, userId: 3 })
-        Turn.create({ date: "2022-03-16", time: "15:30", state: "pending", branchId: 1, userId: 4 })
-      })
-      .catch(console.log)
+        .then(user => user.createBranch(branch))
+    })
+  );
+
+  console.log("Products Seed...");
+
+  return Promise.all([users, branch]);
+};
+
+db.sync({ force: true })
+  .then(setupSeed)
+  .then(() => {
+    console.log("Seed succesfully");
+    process.exit(0);
   })
-  .catch(console.log)
+  .catch((err) => {
+    console.log("Somethin went wrong on the seed process", err.message);
+    process.exit(1);
+  });
