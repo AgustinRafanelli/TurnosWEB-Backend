@@ -4,8 +4,28 @@ const {Branch, User} = require("../models");
 const { isLogged, isAdmin } = require("./utils");
 
 router.post("/register", isAdmin, async (req, res) => {
-  const branch = await Branch.create(req.body);
-  res.send(branch);
+  const userBody = {
+    name: req.body.name ,
+    lastname: "TurnosWEB",
+    email: req.body.email ,
+    dni: 11111111,
+    role: "operator",
+    password: req.body.password,
+  }
+  const brachBody = {
+    name: req.body.name,  
+    coords: req.body.coords ,
+    maxPerTurn: req.body.maxPerTurn,
+    turnRange: JSON.stringify(req.body.turnRange)
+  }
+  User.create(userBody)
+    .then(user => {
+      user.createBranch(brachBody)
+        .then(branch => {
+          res.sendStatus(204)
+        })
+    })
+    .catch(err => res.status(400).send(err))
 });
 
 router.get("/all", async (req, res) => {
