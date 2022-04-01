@@ -1,3 +1,5 @@
+const { User, Branch } = require("../models")
+
 /**
  * Revisa que halla un usuario logueado
  */
@@ -42,4 +44,23 @@ const isAdmin = (req, res, next) => {
   else next();
 };
 
-module.exports = { isLogged, isOperator, isAdmin, isSameUser, isSameUserOrOpetator };
+
+const operatorLogin = (req, res, next) => {
+  if (req.user.role === "operator") {
+    return User.findByPk(req.user.id, { include: Branch })
+      .then(user => {
+        user.branch.turnRange = JSON.parse(user.branch.turnRange)
+        return res.send({
+          id: req.user.id,
+          name: req.user.name,
+          lastname: req.user.lastname,
+          dni: req.user.dni,
+          email: req.user.email,
+          role: req.user.role,
+          branch: user.branch
+        });
+      })
+  } else next()
+}
+
+module.exports = { isLogged, isOperator, isAdmin, isSameUser, isSameUserOrOpetator , operatorLogin};
