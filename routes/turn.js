@@ -61,13 +61,13 @@ router.put("/edit/:id", isSameUser, (req, res) => {
     .then((turn) => {
       if (!turn) return res.status(400).send("No existe un turno activo")
       if (Date.parse(turn.date + " " + turn.time) + 7200000 < Date.now()) {
-        return res.status(400).send("No se pueden cancelar turnos a menos de 2 horas de su horario")
+        return res.status(400).send("No se pueden editar turnos a menos de 2 horas de su horario")
       }
       turn.update({ time: req.body.time, date: req.body.date })
         .then(turn => {
           User.findByPk(turn.userId)
             .then(user => sgMail.send(emails.editedTurnEmail(user.email, turn)))
-          res.status(202).send(turn)
+          res.status(202).send(turn)  
         })
     })
     .catch((err) => {
