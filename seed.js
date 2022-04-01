@@ -14,7 +14,7 @@ const usersList = [
     name: "fake",
     lastname: "fake",
     dni: "12345678",
-    email: "user@fake.com",
+    email: "client@fake.com",
     role: "client",
     password: "12345678",
   },
@@ -29,10 +29,10 @@ const usersList = [
 ];
 const branchList = [
   {
-    name: "SUCURSAL A",
+    name: "SUCURSAL DE PRUEBA CON TURNOS",
     coords: "-90.000, -180.0000",
-    maxPerTurn: 1,
-    turnRange: JSON.stringify({ open: 10, close: 14 }),
+    maxPerTurn: 5,
+    turnRange: JSON.stringify({ open: 8, close: 16 }),
   },
   {
     name: "SUCURSAL B",
@@ -86,7 +86,6 @@ const setupSeed = async () => {
       return await User.create(user);
     })
   );
-  //const branch = await Branch.bulkCreate(branchList);
 
   const branch = await Promise.all(
     branchList.map(async (branch, i) => {
@@ -99,6 +98,19 @@ const setupSeed = async () => {
         password: "12345678",
       })
         .then(user => user.createBranch(branch))
+    })
+  );
+
+  const clients = await Promise.all(
+    branchList.map(async (branch, i) => {
+      return await User.create({
+        name: "fake",
+        lastname: "fake",
+        dni: "12345678",
+        email: `client${i}@fake.com`,
+        role: "client",
+        password: "12345678",
+      }).then(user => user.newTurn({ branchId: 1, date: Date.now().toString().slice(0, 10), time: `1${i}:30` }))
     })
   );
 
