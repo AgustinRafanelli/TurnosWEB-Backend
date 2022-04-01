@@ -59,7 +59,7 @@ router.get("/me", isLogged, (req, res) => {
 router.put("/password/change/:id", isSameUser, passport.authenticate('local'), (req, res) => {
   User.updatePassword(req.params.id, req.body.newPassword)
     .then(user => {
-      sgMail.send(changePasswordEmail(user.email))
+      sgMail.send(emails.changePasswordEmail(user.email))
       res.sendStatus(204)
     })
 });
@@ -91,7 +91,8 @@ router.post("/password/reset/:token", (req, res) => {
       if (!token || token.createdAt + 3600000 > Date.now() ) return res.status(401).send("El token de reinicio de clave es incorrecto o ya esta vencido")
       User.updatePassword(token.userId, req.body.password )
         .then(user => {
-          sgMail.send(changePasswordEmail(user.email))
+          Token.destroy({where: {token: req.params.token}})
+          sgMail.send(emails.changePasswordEmail(user.email))
           res.sendStatus(204)
         })
     })

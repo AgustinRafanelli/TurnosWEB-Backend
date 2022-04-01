@@ -146,7 +146,7 @@ User.updatePassword = function (id, password) {
         .then(hash => {
           return User.update({ password: hash, salt }, { where: { id }, returning: true })
         })
-        .then(user => user[1])
+        .then(user => user[1][0])
     })
 }
 
