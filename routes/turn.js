@@ -3,7 +3,7 @@ const router = express.Router();
 const { User, Turn, Branch } = require("../models");
 const sgMail = require('../config/sendgrid')
 const emails = require('./emailTemplates')
-const { isLogged, isOperator, isSameUser,isSameUserOrOpetator } = require("./utils");
+const { isLogged, isOperator, isSameUser, isSameUserOrOpetator } = require("./utils");
 
 //Turno (1) pending para un determinado Usuario
 router.get("/pending/:userId", isLogged, (req, res) => {
@@ -112,6 +112,14 @@ router.put("/assist/:userId", isOperator, (req, res) => {
 router.get("/branch/:branchId", isOperator, (req, res) => {
   const { branchId } = req.params;
   Turn.findAll({ where: { branchId } }).then((turns) => {
+    res.status(200).send(turns);
+  });
+});
+
+//Turnos por sucursal de cierto dia
+router.get("/branch/:branchId/:date", isOperator, (req, res) => {
+  const { branchId , date } = req.params;
+  Turn.findAll({ where: { branchId, date } }).then((turns) => {
     res.status(200).send(turns);
   });
 });

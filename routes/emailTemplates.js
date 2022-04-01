@@ -1,3 +1,16 @@
+const userCreationEmail = function (userEmail) {
+  console.log(userEmail)
+  return email = {
+    to: userEmail,
+    from: 'turnoswebp5@gmail.com',
+    subject: 'Alta de usuario',
+    html: `
+      <p>Esta recibiendo este email porque <strong>su contraseña</strong> a sido cambiada exitosamente.<br/>
+      Si no fue usted quien requirio esto, porfavor pida un cambio de clave urgentemente.</p>
+      `,
+  };
+}
+
 const changePasswordEmail = function (userEmail){
   console.log(userEmail)
   return email = {

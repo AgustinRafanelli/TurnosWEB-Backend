@@ -2,26 +2,28 @@ const express = require("express");
 const router = express.Router();
 const passport = require("passport");
 const crypto = require('crypto')
-const { isLogged, isSameUser } = require("./utils");
-const User = require("../models/User");
 const Token = require("../models/Token");
 const sgMail = require('../config/sendgrid')
-const emails = require('./emailTemplates')
+const emails = require('./emailTemplates');
+const { Branch, User } = require("../models");
+const { isLogged, isSameUser, operatorLogin } = require("./utils");
 
-router.post("/register", (req, res) => {
+router.post("/register", (req, res, next) => {
   User.create(req.body)
-    .then( user => res.send({
-      id: user.id,
-      name: user.name,
-      lastname: user.lastname,
-      dni: user.dni,
-      email: user.email,
-      role: user.role,
-    }) )
+    .then( user =>  {
+      sgMail.send(emails.userCreationEmail(user.email))
+      res.send({
+        id: user.id,
+        name: user.name,
+        lastname: user.lastname,
+        dni: user.dni,
+        email: user.email,
+        role: user.role,
+    }) })
     .catch( error => res.status(400).send(error) )
 });
-
-router.post("/login", passport.authenticate("local"), (req, res) => {
+//agragar loguin de operaton mandando branch
+router.post("/login", passport.authenticate("local"), operatorLogin ,(req, res) => {
   res.send({
     id: req.user.id,
     name: req.user.name,
@@ -32,17 +34,17 @@ router.post("/login", passport.authenticate("local"), (req, res) => {
   });
 });
 
-router.post("/logout", (req, res) => {
+router.post("/logout", (req, res, next) => {
   req.logout();
   res.status(200).send({});
 });
 
-router.delete("/", isLogged, (req, res) => {
+router.delete("/", isLogged, (req, res, next) => {
   User.destroy({ where: { id: req.user.id } });
   res.send("Succesfull delete");
 });
 
-router.get("/me", isLogged, (req, res) => {
+router.get("/me", isLogged, operatorLogin , (req, res, next) => {
   const { id, name, lastname, dni, email, role } = req.user;
   const user = {
     id: id,
@@ -56,7 +58,7 @@ router.get("/me", isLogged, (req, res) => {
 });
 
 //Password 
-router.put("/password/change/:id", isSameUser, passport.authenticate('local'), (req, res) => {
+router.put("/password/change/:id", isSameUser, passport.authenticate('local'), (req, res, next) => {
   User.updatePassword(req.params.id, req.body.newPassword)
     .then(user => {
       sgMail.send(emails.changePasswordEmail(user.email))
@@ -64,7 +66,7 @@ router.put("/password/change/:id", isSameUser, passport.authenticate('local'), (
     })
 });
 
-router.post("/password/forgot", (req, res) => {
+router.post("/password/forgot", (req, res, next) => {
   User.findOne({ where: { email: req.body.email } })
     .then(user => {
       if (!user) return res.status(400).send("No existe un usuario con ese email")
@@ -77,7 +79,7 @@ router.post("/password/forgot", (req, res) => {
     .catch(err => console.log(err))
 });
 
-router.get("/password/reset/:token", (req, res) => {
+router.get("/password/reset/:token", (req, res, next) => {
   Token.findOne({ where: { token: req.params.token } })
     .then(token => {
       if (!token || token.createdAt + 3600000 > Date.now()) return res.status(401).send("El token de reinicio de clave es incorrecto o ya esta vencido")
@@ -85,7 +87,7 @@ router.get("/password/reset/:token", (req, res) => {
     })
 });
 
-router.post("/password/reset/:token", (req, res) => {
+router.post("/password/reset/:token", (req, res, next) => {
   Token.findOne({ where: { token: req.params.token } })
     .then(token => {
       if (!token || token.createdAt + 3600000 > Date.now() ) return res.status(401).send("El token de reinicio de clave es incorrecto o ya esta vencido")

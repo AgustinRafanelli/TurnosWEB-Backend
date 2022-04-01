@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const {Branch, User} = require("../models");
-const { isLogged, isAdmin } = require("./utils");
+const { isAdmin } = require("./utils");
 
 router.post("/register", isAdmin, async (req, res) => {
   const userBody = {
@@ -45,11 +45,6 @@ router.get("/:id", (req, res, next) => {
 router.delete("/:id", isAdmin, (req, res) => {
   Branch.destroy({ where: { id: req.params.id } });
   res.send("Sucursal eliminada");
-});
-
-router.get("/all",isLogged, async (req, res) => {
-  const branchs = await Branch.findAll();
-  res.send(branchs);
 });
 
 module.exports = router;
