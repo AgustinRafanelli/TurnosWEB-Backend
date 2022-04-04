@@ -5,8 +5,7 @@ const userCreationEmail = function (userEmail) {
     from: 'turnoswebp5@gmail.com',
     subject: 'Alta de usuario',
     html: `
-      <p>Esta recibiendo este email porque <strong>su contraseña</strong> a sido cambiada exitosamente.<br/>
-      Si no fue usted quien requirio esto, porfavor pida un cambio de clave urgentemente.</p>
+      <p>Felicitaciones, su usario a sido creado exitosamente.</p>
       `,
   };
 }
