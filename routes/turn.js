@@ -119,15 +119,14 @@ router.get("/branch/:branchId", isOperator, (req, res) => {
 //Turnos por sucursal de cierto dia
 router.get("/branch/:branchId/:date", /* isOperator, */ (req, res) => {
   const { branchId , date } = req.params;
-  User.findAll({
-    attributes: ['id', 'name', 'lastname', 'dni', 'email', 'role' ],
+  Turn.findAll({
+    where: { branchId, date },
+    attributes: ['id', 'date', 'time', 'state'],
     include: {
-      model: Turn,
-      where: {branchId, date},
-      attributes: ['id', 'date', 'time', 'state'],
-      required: true
+      model: User,
+      attributes: ['id', 'name', 'lastname', 'dni', 'email'],
     }
-  }).then(users => res.status(200).send(users))
+  }).then(turns => res.status(200).send(turns))
   .catch(console.log)
 });
 
