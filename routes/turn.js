@@ -117,11 +117,21 @@ router.get("/branch/:branchId", isOperator, (req, res) => {
 });
 
 //Turnos por sucursal de cierto dia
-router.get("/branch/:branchId/:date", isOperator, (req, res) => {
+router.get("/branch/:branchId/:date", /* isOperator, */ (req, res) => {
   const { branchId , date } = req.params;
-  Turn.findAll({ where: { branchId, date } }).then((turns) => {
+  User.findAll({include: [{
+    model: Branch,
+    include:[{
+      model: Turn
+    }]
+    //as: 'juanca',
+    //required: true,
+   // where: { branchId, date }
+  }]}).then(user => console.log(user))
+  .catch(console.log)
+ /*  Turn.findAll({ where: { branchId, date } }).then((turns) => {
     res.status(200).send(turns);
-  });
+  }); */
 });
 
 //Retorna un turno en particular

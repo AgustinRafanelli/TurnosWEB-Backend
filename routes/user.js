@@ -22,7 +22,16 @@ router.post("/register", (req, res, next) => {
     }) })
     .catch( error => res.status(400).send(error) )
 });
-//agragar loguin de operaton mandando branch
+
+/**
+ * Ruta que espera un objeto con la siguiente estructura:
+ *  { 
+      "email": string, 
+      "password": string,
+      "newPassword": string 
+    }
+ * Modifica la clave y envia un mail de confirmacion
+ */
 router.post("/login", passport.authenticate("local"), operatorLogin ,(req, res) => {
   res.send({
     id: req.user.id,

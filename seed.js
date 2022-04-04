@@ -32,7 +32,7 @@ const branchList = [
     name: "SUCURSAL DE PRUEBA CON TURNOS",
     coords: "-90.000, -180.0000",
     maxPerTurn: 5,
-    turnRange: JSON.stringify({ open: 8, close: 16 }),
+    turnRange: JSON.stringify({ open: 8, close: 20 }),
   },
   {
     name: "SUCURSAL B",
@@ -110,7 +110,7 @@ const setupSeed = async () => {
         email: `client${i}@fake.com`,
         role: "client",
         password: "12345678",
-      }).then(user => user.newTurn({ branchId: 1, date: Date.now().toString().slice(0, 10), time: `1${i}:30` }))
+      }).then(user => user.newTurn({ branchId: 1, date: new Date().toISOString().slice(0, 10), time: `1${i}:30` }))
     })
   );
 
