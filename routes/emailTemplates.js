@@ -72,4 +72,4 @@ const canceledTurnEmail = function (userEmail, turn) {
   }
 }
 
-module.exports = { resetEmail, changePasswordEmail, canceledTurnEmail, editedTurnEmail, turnConfirmationEmail}
+module.exports = { resetEmail, changePasswordEmail, canceledTurnEmail, editedTurnEmail, turnConfirmationEmail, userCreationEmail}

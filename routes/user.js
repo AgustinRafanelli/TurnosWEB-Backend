@@ -22,7 +22,16 @@ router.post("/register", (req, res, next) => {
     }) })
     .catch( error => res.status(400).send(error) )
 });
-//agragar loguin de operaton mandando branch
+
+/**
+ * Ruta que espera un objeto con la siguiente estructura:
+ *  { 
+      "email": string, 
+      "password": string,
+      "newPassword": string 
+    }
+ * Modifica la clave y envia un mail de confirmacion
+ */
 router.post("/login", passport.authenticate("local"), operatorLogin ,(req, res) => {
   res.send({
     id: req.user.id,
@@ -39,22 +48,20 @@ router.post("/logout", (req, res, next) => {
   res.status(200).send({});
 });
 
+router.get("/me", isLogged, operatorLogin , (req, res, next) => {
+  res.send({
+    id: req.user.id,
+    name: req.user.name,
+    lastname: req.user.lastname,
+    dni: req.user.dni,
+    email: req.user.email,
+    role: req.user.role,
+  });
+});
+
 router.delete("/", isLogged, (req, res, next) => {
   User.destroy({ where: { id: req.user.id } });
   res.send("Succesfull delete");
-});
-
-router.get("/me", isLogged, operatorLogin , (req, res, next) => {
-  const { id, name, lastname, dni, email, role } = req.user;
-  const user = {
-    id: id,
-    name: name,
-    lastname: lastname,
-    dni: dni,
-    email: email,
-    role: role,
-  };
-  res.send(user);
 });
 
 //Password 

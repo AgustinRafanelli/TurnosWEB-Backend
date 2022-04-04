@@ -4,23 +4,21 @@ const {Branch, User} = require("../models");
 const { isAdmin } = require("./utils");
 
 router.post("/register", isAdmin, async (req, res) => {
-  const userBody = {
-    name: req.body.name ,
+  User.create({
+    name: req.body.name,
     lastname: "TurnosWEB",
-    email: req.body.email ,
+    email: req.body.email,
     dni: 11111111,
     role: "operator",
     password: req.body.password,
-  }
-  const brachBody = {
-    name: req.body.name,  
-    coords: req.body.coords ,
-    maxPerTurn: req.body.maxPerTurn,
-    turnRange: JSON.stringify(req.body.turnRange)
-  }
-  User.create(userBody)
+  })
     .then(user => {
-      user.createBranch(brachBody)
+      user.createBranch({
+        name: req.body.name,
+        coords: req.body.coords,
+        maxPerTurn: req.body.maxPerTurn,
+        turnRange: JSON.stringify(req.body.turnRange)
+      })
         .then(branch => {
           res.sendStatus(204)
         })
