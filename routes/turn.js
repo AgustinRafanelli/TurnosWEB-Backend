@@ -10,7 +10,12 @@ router.get("/pending/:userId", isLogged, (req, res) => {
     const { userId } = req.params;
     User.findOne({ where: { id: userId } })
       .then((user) => {
-        Turn.findOne({ where: { userId, state: "pending" } })
+        Turn.findOne({ 
+          where: { userId, state: "pending" },
+          include: { 
+            model: Branch,
+            attributes: ["name", 'coords']
+          }  })
         .then((turn) => {
           if (!turn) return res.status(400).send("No existe un turno activo")
           res.status(200).send(turn);
@@ -76,8 +81,9 @@ router.put("/edit/:id", isSameUser, (req, res) => {
 });
 
 //Cancela turno
-router.put("/cancel/:id", isSameUser, (req, res) => {
-  Turn.findOne({ where: { userId: req.params.id, state: "pending" } })
+router.put("/state/cancel/:userId", isSameUser, (req, res) => {
+  const { userId } = req.params;
+  Turn.findOne({ where: { userId, state: "pending" } })
     .then((turn) => {
       if (!turn) return res.status(400).send("No existe un turno activo")
       if (Date.parse(turn.date + " " + turn.time) + 7200000 < Date.now()) {
@@ -97,9 +103,10 @@ router.put("/cancel/:id", isSameUser, (req, res) => {
 
 // ****************************  Rutas para Administrador **************************//
 //Actualización de state del turno
-router.put("/assist/:userId", isOperator, (req, res) => {
-  const { userId } = req.params;
-  Turn.update({ state: "assisted" }, { where: { userId, state: "pending" } })
+router.put("/state/:state/:userId", isOperator, (req, res) => {
+  const { userId, state} = req.params;
+  if (state !== "assisted" && state!== "missed" ) 
+    Turn.update({ state }, { where: { userId, state: "pending" } })
     .then((turn) => {
       res.status(202).send(turn);
     })
