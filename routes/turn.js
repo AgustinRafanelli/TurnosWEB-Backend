@@ -81,9 +81,9 @@ router.put("/edit/:id", isSameUser, (req, res) => {
 });
 
 //Cancela turno
-router.put("/state/cancel/:userId", isSameUser, (req, res) => {
-  const { userId } = req.params;
-  Turn.findOne({ where: { userId, state: "pending" } })
+router.put("/state/cancel/:id", isSameUserOrOpetator, (req, res) => {
+  const { id } = req.params;
+  Turn.findOne({ where: { userId: id, state: "pending" } })
     .then((turn) => {
       if (!turn) return res.status(400).send("No existe un turno activo")
       if (Date.parse(turn.date + " " + turn.time) + 7200000 < Date.now()) {
@@ -105,14 +105,14 @@ router.put("/state/cancel/:userId", isSameUser, (req, res) => {
 //Actualización de state del turno
 router.put("/state/:state/:userId", isOperator, (req, res) => {
   const { userId, state} = req.params;
-  if (state !== "assisted" && state!== "missed" ) 
-    Turn.update({ state }, { where: { userId, state: "pending" } })
-    .then((turn) => {
-      res.status(202).send(turn);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+  if (state !== "assisted" && state!== "missed" ) return res.sendStatus(400)
+  Turn.update({ state }, { where: { userId, state: "pending" } })
+  .then((turn) => {
+    res.status(202).send(turn);
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 });
 
 //Turnos por sucursal
