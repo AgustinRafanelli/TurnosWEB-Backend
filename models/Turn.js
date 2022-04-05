@@ -1,4 +1,3 @@
-const { DATEONLY } = require("sequelize");
 const S = require("sequelize");
 const sequelize = require("../config/db");
 
@@ -25,11 +24,11 @@ Turn.init(
       }
     }, 
     state: {
-      type: S.DataTypes.ENUM("pending", "canceled", "assisted"),
+      type: S.DataTypes.ENUM("pending", "canceled", "assisted", "missed"),
       defaultValue: "pending",
       validate: {
         isIn: {
-          args: [["pending", "canceled", "assisted"]],
+          args: [["pending", "canceled", "assisted", "missed"]],
           msg: "El estado indicado no existe"
         }
       }

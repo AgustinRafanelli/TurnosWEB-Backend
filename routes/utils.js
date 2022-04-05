@@ -22,12 +22,12 @@ const isSameUser = (req, res, next) => {
  */
 const isSameUserOrOpetator = (req, res, next) => {
   if (!req.user) res.status(401).send("Not Logged")
-  else if (req.user.id === req.params.id || req.user.role === "operator") next()
+  else if (req.user.id == req.params.id || req.user.role === "operator") next()
   else res.status(401).send("Usuario equivocado")
 };
 
 /**
- * Revisa que el usuario logueado sea un operador
+ * Revisa que el usuario logueado sea un operador 
  */
 const isOperator = (req, res, next) => {
   if (!req.user) res.status(401).send("Not Logged")

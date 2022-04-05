@@ -10,7 +10,12 @@ router.get("/pending/:userId", isLogged, (req, res) => {
     const { userId } = req.params;
     User.findOne({ where: { id: userId } })
       .then((user) => {
-        Turn.findOne({ where: { userId, state: "pending" } })
+        Turn.findOne({ 
+          where: { userId, state: "pending" },
+          include: { 
+            model: Branch,
+            attributes: ["name", 'coords']
+          }  })
         .then((turn) => {
           if (!turn) return res.status(400).send("No existe un turno activo")
           res.status(200).send(turn);
@@ -89,11 +94,12 @@ router.put("/edit/:id", isSameUser, (req, res) => {
 });
 
 //Cancela turno
-router.put("/cancel/:id", isSameUser, (req, res) => {
-  Turn.findOne({ where: { userId: req.params.id, state: "pending" } })
+router.put("/state/cancel/:id", isSameUserOrOpetator, (req, res) => {
+  const { id } = req.params;
+  Turn.findOne({ where: { userId: id, state: "pending" } })
     .then((turn) => {
       if (!turn) return res.status(400).send("No existe un turno activo")
-      if (Date.parse(turn.date + " " + turn.time) + 7200000 < Date.now()) {
+      if (Date.parse(turn.date + " " + turn.time) - 7200000 < Date.now()) {
         return res.status(400).send("No se pueden cancelar turnos a menos de 2 horas de su horario")
       }
       turn.update({ state: "canceled" })
@@ -110,15 +116,16 @@ router.put("/cancel/:id", isSameUser, (req, res) => {
 
 // ****************************  Rutas para Administrador **************************//
 //Actualización de state del turno
-router.put("/assist/:userId", isOperator, (req, res) => {
-  const { userId } = req.params;
-  Turn.update({ state: "assisted" }, { where: { userId, state: "pending" } })
-    .then((turn) => {
-      res.status(202).send(turn);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+router.put("/state/:state/:userId", isOperator, (req, res) => {
+  const { userId, state} = req.params;
+  if (state !== "assisted" && state!== "missed" ) return res.sendStatus(400)
+  Turn.update({ state }, { where: { userId, state: "pending" } })
+  .then((turn) => {
+    res.status(202).send(turn);
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 });
 
 //Turnos por sucursal
@@ -130,11 +137,17 @@ router.get("/branch/:branchId", isOperator, (req, res) => {
 });
 
 //Turnos por sucursal de cierto dia
-router.get("/branch/:branchId/:date", isOperator, (req, res) => {
+router.get("/branch/:branchId/:date", /* isOperator, */ (req, res) => {
   const { branchId , date } = req.params;
-  Turn.findAll({ where: { branchId, date } }).then((turns) => {
-    res.status(200).send(turns);
-  });
+  Turn.findAll({
+    where: { branchId, date },
+    attributes: ['id', 'date', 'time', 'state'],
+    include: {
+      model: User,
+      attributes: ['id', 'name', 'lastname', 'dni', 'email'],
+    }
+  }).then(turns => res.status(200).send(turns))
+  .catch(console.log)
 });
 
 //Retorna un turno en particular

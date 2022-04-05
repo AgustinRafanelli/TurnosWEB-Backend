@@ -10,8 +10,10 @@ Branch.belongsTo(User)
 User.hasOne(Token)
 Token.belongsTo(User)
 
-User.belongsToMany(Branch, { through: Turn , as: 'turn'})
-Branch.belongsToMany(User, { through: Turn , as: 'turn'})
+User.hasMany(Turn)
+Turn.belongsTo(User)
 
+Branch.hasMany(Turn)
+Turn.belongsTo(Branch)
 
 module.exports = { User, Turn, Branch, Task } 
