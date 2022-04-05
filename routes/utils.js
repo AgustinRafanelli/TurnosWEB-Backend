@@ -62,5 +62,18 @@ const operatorLogin = (req, res, next) => {
       })
   } else next()
 }
+const  formatDate = (date) =>{
+  var d = new Date(date),
+      month = '' + (d.getMonth() + 1),
+      day = '' + d.getDate(),
+      year = d.getFullYear();
 
-module.exports = { isLogged, isOperator, isAdmin, isSameUser, isSameUserOrOpetator , operatorLogin};
+  if (month.length < 2) 
+      month = '0' + month;
+  if (day.length < 2) 
+      day = '0' + day;
+
+  return [year, month, day].join('-');
+}
+
+module.exports = { isLogged, isOperator, isAdmin, isSameUser, isSameUserOrOpetator , operatorLogin, formatDate};

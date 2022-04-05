@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const { User, Turn, Branch } = require("../models");
+const { User, Turn, Branch, Task } = require("../models");
 const sgMail = require('../config/sendgrid')
 const emails = require('./emailTemplates')
-const { isLogged, isOperator, isSameUser, isSameUserOrOpetator } = require("./utils");
+const { isLogged, isOperator, isSameUser, isSameUserOrOpetator, formatDate } = require("./utils");
 
 //Turno (1) pending para un determinado Usuario
 router.get("/pending/:userId", isLogged, (req, res) => {
@@ -32,7 +32,20 @@ router.post("/", isLogged, (req, res, next) => {
       Turn.findOne({where: {userId: id, branchId: turn.branchId}})
         .then(turn => {
           Branch.findByPk(turn.branchId)
-            .then(branch => sgMail.send(emails.turnConfirmationEmail(email, turn, branch.name)))
+            .then(branch => {
+              //Crear una tarea para el envío del mail
+              let diaAlert = new Date(turn.date);
+              let hsAlert = turn.time.substring(0,2) + ":00"
+
+              //Se resta un día a la fecha que tiene reservado el turno
+              diaAlert = formatDate(diaAlert);
+              let taskNewTurn = {process_date: diaAlert, process_time: hsAlert,
+                                name: "Aviso por Email 24hs", email}
+              Task.create(taskNewTurn);
+              
+              //Confirmación de la reserva de turno exitosa
+              sgMail.send(emails.turnConfirmationEmail(email, turn, branch.name))
+            })
         })
       res.status(201).send(msg)
     })
