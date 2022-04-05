@@ -86,7 +86,7 @@ router.put("/state/cancel/:id", isSameUserOrOpetator, (req, res) => {
   Turn.findOne({ where: { userId: id, state: "pending" } })
     .then((turn) => {
       if (!turn) return res.status(400).send("No existe un turno activo")
-      if (Date.parse(turn.date + " " + turn.time) + 7200000 < Date.now()) {
+      if (Date.parse(turn.date + " " + turn.time) - 7200000 < Date.now()) {
         return res.status(400).send("No se pueden cancelar turnos a menos de 2 horas de su horario")
       }
       turn.update({ state: "canceled" })
