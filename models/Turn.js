@@ -37,4 +37,8 @@ Turn.init(
   { sequelize, modelName: "turns" , timestamps: false}
 );
 
+Turn.afterCreate( turn =>{
+  
+})
+
 module.exports = Turn;
