@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const {Branch, User, Turn} = require("../models");
+const { Branch, User, Turn } = require("../models");
 const { Op } = require("sequelize")
 const { isAdmin } = require("./utils");
 
@@ -35,7 +35,7 @@ router.get("/all", async (req, res) => {
 router.get("/:id", (req, res, next) => {
   Branch.findByPk(req.params.id)
     .then(branch => {
-      if(!branch) return res.sendStatus(400)  
+      if (!branch) return res.sendStatus(400)
       res.send(branch)
     })
     .catch(next)
@@ -64,16 +64,18 @@ router.get("/disponibility/:branchId/:date", (req, res, next) => {
     .catch(next)
 });
 
-router.get('/stats/:branchId/:startDate/:finishDate', async (req,res,next)=>{
-  const { branchId, startDate, finishDate} = req.params
+router.get('/stats/:branchId/:startDate/:finishDate', async (req, res, next) => {
+  const { branchId, startDate, finishDate } = req.params
   try {
-    const missed = await Turn.count({where: { 
-      branchId,
-      date: {
-        [Op.between]: [startDate, finishDate] 
-      },
-      state: "missed"
-    }})
+    const missed = await Turn.count({
+      where: {
+        branchId,
+        date: {
+          [Op.between]: [startDate, finishDate]
+        },
+        state: "missed"
+      }
+    })
     const assisted = await Turn.count({
       where: {
         branchId,
@@ -92,13 +94,13 @@ router.get('/stats/:branchId/:startDate/:finishDate', async (req,res,next)=>{
         state: "canceled"
       }
     })
-    res.send({missed, assisted, canceled})
-  } catch(e) {
+    res.send({ missed, assisted, canceled })
+  } catch (e) {
     res.status(400).send(e)
   }
 })
 
-router.get('/tunrInAdvnace/:branchId/:startDate/:finishDate', async (req, res, next) => {
+router.get('/turnDensity/:branchId/:startDate/:finishDate', (req, res, next) => {
   const { branchId, startDate, finishDate } = req.params
   Turn.findAndCountAll({
     where: {
@@ -106,11 +108,42 @@ router.get('/tunrInAdvnace/:branchId/:startDate/:finishDate', async (req, res, n
       date: {
         [Op.between]: [startDate, finishDate]
       }
-    }})
+    }
+  })
     .then(({ count, rows }) => {
-      const reduce = rows.map( (turn)=>(Date.parse(turn.createdAt) - Date.parse(turn.date + " " + turn.time))/3600000)
-      const reduceResult = reduce.reduce((previousValue, currentValue) => previousValue + currentValue, 0 );
-      res.send({ average: reduceResult/count})
+      let days = [
+        { total: 0 },
+        { total: 0 },
+        { total: 0 },
+        { total: 0 },
+        { total: 0 },
+        { total: 0 },
+        { total: 0 }]
+      rows.map(turn => {
+        let date = new Date(turn.date + ' ' + turn.time).getDay()
+        days[date].total++
+        if (days[date][turn.time.slice(0, 2)]) days[date][turn.time.slice(0, 2)]++
+        else days[date][turn.time.slice(0, 2)] = 1
+      })
+      res.send(days)
+    })
+    .catch(err => res.status(400).send(err))
+})
+
+router.get('/turnInAdvnace/:branchId/:startDate/:finishDate', (req, res, next) => {
+  const { branchId, startDate, finishDate } = req.params
+  Turn.findAndCountAll({
+    where: {
+      branchId,
+      date: {
+        [Op.between]: [startDate, finishDate]
+      }
+    }
+  })
+    .then(({ count, rows }) => {
+      const reduce = rows.map((turn) => (Date.parse(turn.createdAt) - Date.parse(turn.date + " " + turn.time)) / 3600000)
+      const reduceResult = reduce.reduce((previousValue, currentValue) => previousValue + currentValue, 0);
+      res.send({ average: reduceResult / count })
     })
 })
 
