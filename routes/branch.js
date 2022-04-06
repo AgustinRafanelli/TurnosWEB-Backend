@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const {Branch, User} = require("../models");
+const {Branch, User, Turn} = require("../models");
+const { Op } = require("sequelize")
 const { isAdmin } = require("./utils");
 
 router.post("/register", isAdmin, async (req, res) => {
@@ -44,5 +45,55 @@ router.delete("/:id", isAdmin, (req, res) => {
   Branch.destroy({ where: { id: req.params.id } });
   res.send("Sucursal eliminada");
 });
+
+router.get('/stats/:branchId/:startDate/:finishDate', async (req,res,next)=>{
+  const { branchId, startDate, finishDate} = req.params
+  try {
+    const missed = await Turn.count({where: { 
+      branchId,
+      date: {
+        [Op.between]: [startDate, finishDate] 
+      },
+      state: "missed"
+    }})
+    const assisted = await Turn.count({
+      where: {
+        branchId,
+        date: {
+          [Op.between]: [startDate, finishDate]
+        },
+        state: "assisted"
+      }
+    })
+    const canceled = await Turn.count({
+      where: {
+        branchId,
+        date: {
+          [Op.between]: [startDate, finishDate]
+        },
+        state: "canceled"
+      }
+    })
+    res.send({missed, assisted, canceled})
+  } catch(e) {
+    res.status(400).send(e)
+  }
+})
+
+router.get('/tunrInAdvnace/:branchId/:startDate/:finishDate', async (req, res, next) => {
+  const { branchId, startDate, finishDate } = req.params
+  Turn.findAndCountAll({
+    where: {
+      branchId,
+      date: {
+        [Op.between]: [startDate, finishDate]
+      }
+    }})
+    .then(({ count, rows }) => {
+      const reduce = rows.map( (turn)=>(Date.parse(turn.createdAt) - Date.parse(turn.date + " " + turn.time))/3600000)
+      const reduceResult = reduce.reduce((previousValue, currentValue) => previousValue + currentValue, 0 );
+      res.send({ average: reduceResult/count})
+    })
+})
 
 module.exports = router;

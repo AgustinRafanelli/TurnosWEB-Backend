@@ -44,7 +44,7 @@ cron.schedule('1 00 * * *', ()=>{
         })
 })
 
-cron.schedule('59 * * * *', () => {
+cron.schedule('*/15 * * * *', () => {
     const dia = new Date(Date.now() - 3600000)
     const time = `${dia.getHours()}:${dia.getMinutes()}`
     const date = dia.toISOString().slice(0, 10)
