@@ -46,6 +46,24 @@ router.delete("/:id", isAdmin, (req, res) => {
   res.send("Sucursal eliminada");
 });
 
+/**
+ * Devuelve un objeto con horarios como key y cantidad de reservas como value
+ */
+router.get("/disponibility/:branchId/:date", (req, res, next) => {
+  const { branchId, date } = req.params
+  Turn.findAll({ where: { branchId, date, state: 'pending' } })
+    .then(turns => {
+      if (!turns) return res.sendStatus(400)
+      let disponibility = {}
+      turns.map(turn => {
+        if (disponibility[turn.time]) disponibility[turn.time]++
+        else disponibility[turn.time] = 1
+      })
+      res.send(disponibility)
+    })
+    .catch(next)
+});
+
 router.get('/stats/:branchId/:startDate/:finishDate', async (req,res,next)=>{
   const { branchId, startDate, finishDate} = req.params
   try {
