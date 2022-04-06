@@ -19,7 +19,7 @@ Branch.init({
     turnRange: {
         type: S.JSON,
         allowNull: false,
-        //{sunday: {start:0,end:0},monday: {start: 10, end: 19}, tuesday: {start: 10, end: 19} }
+        //{ open: 0-24, close: 0-24 }
     },
 }, { sequelize: db, modelName: 'branches' })
 

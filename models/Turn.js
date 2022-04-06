@@ -34,7 +34,7 @@ Turn.init(
       }
     },
   },
-  { sequelize, modelName: "turns" , timestamps: false}
+  { sequelize, modelName: "turns"}
 );
 
 module.exports = Turn;
