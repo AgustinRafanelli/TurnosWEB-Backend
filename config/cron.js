@@ -33,7 +33,7 @@ cron.schedule('1 * * * *',()=>{
             }
         })
     }
-    console.log("Se corrio el aviso de 24hs antes, se enviaron ", countSendMail ," mail");   
+    console.log("Se corrió el aviso de 24hs antes") 
     })
     .catch((err) => { console.log(err);}); 
 })

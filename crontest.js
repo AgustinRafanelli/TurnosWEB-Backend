@@ -4,6 +4,7 @@ const { formatDate } = require("./routes/utils");
 const emails = require('./routes/emailTemplates');
 const sgMail = require('./config/sendgrid')
 
+let countSendMail = 0;
 let dateActual = new Date();
 let hoursActual = dateActual.getHours();
 dateActual =formatDate(dateActual);
@@ -21,7 +22,7 @@ Task.findAll({ where: { process_date: dateActual, complete:false, name:"Aviso po
                 Branch.findOne({where: {id: turn.branchId}})
                 .then(branch =>{
                     sgMail.send(emails.avisoTurno24hs(user.email,turn.date,turn.time,branch.name))
-                    .then(stats =>{ task.update({complete: true})})
+                    .then(stats =>{ countSendMail++; task.update({complete: true})})
                   })
               })
               
@@ -30,8 +31,6 @@ Task.findAll({ where: { process_date: dateActual, complete:false, name:"Aviso po
          }
       })
   }
-    
+  console.log("Se corrio el aviso de 24hs antes, se enviaron ", countSendMail ," mail");    
 })
 .catch((err) => { console.log(err);});
-
-console.log("Hola! Estoy corriendo el primer CRON : ", dateActual);
