@@ -6,7 +6,8 @@ const sgMail = require('../config/sendgrid')
 const { Task }= require("../models");
 const { Op } = require("sequelize")
 
-cron.schedule('0 * * * *',()=>{
+cron.schedule('1 * * * *',()=>{
+    let countSendMail = 0;
     let dateActual = new Date();
     let hoursActual = dateActual.getHours();
     dateActual =formatDate(dateActual);
@@ -24,7 +25,8 @@ cron.schedule('0 * * * *',()=>{
                         Branch.findOne({where: {id: turn.branchId}})
                         .then(branch =>{
                             sgMail.send(emails.avisoTurno24hs(user.email,turn.date,turn.time,branch.name))
-                            .then(stats =>{ task.update({complete: true})})
+                            .then(stats =>{ countSendMail++;
+                                task.update({complete: true})})
                         })
                     })
                 })
@@ -35,7 +37,7 @@ cron.schedule('0 * * * *',()=>{
     })
     .catch((err) => { console.log(err);});
 
-    console.log("Hola! Estoy corriendo el primer CRON : ", dateActual);
+    console.log("Se corrio el aviso de 24hs antes, se enviaron ", countSendMail ," mail");
 })
 
 cron.schedule('1 00 * * *', ()=>{
