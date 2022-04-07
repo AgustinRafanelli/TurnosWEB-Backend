@@ -5,7 +5,7 @@ const emails = require('../routes/emailTemplates')
 const { Task }= require("../models");
 const { Op } = require("sequelize")
 
-cron.schedule('*/60 * * * *',()=>{
+cron.schedule('0 * * * *',()=>{
     let dateActual = new Date();
     let hoursActual = dateActual.getHours();
     dateActual =formatDate(dia);
@@ -21,9 +21,7 @@ cron.schedule('*/60 * * * *',()=>{
             }
         })
         .catch((err) => { console.log(err);});
-    })
-    
-    
+    }) 
     console.log("Hola! Estoy corriendo el primer CRON : ", formatDate(dateActual));
 })
 

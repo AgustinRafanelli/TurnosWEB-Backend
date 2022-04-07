@@ -53,9 +53,9 @@ const editedTurnEmail = function (userEmail, turn) {
   return email = {
     to: userEmail,
     from: 'turnoswebp5@gmail.com',
-    subject: 'Edicion de turno',
+    subject: 'Edición de turno',
     html: `
-      <p>Su turno a sido editado con exito y se llevara acabo el ${turn.date} a las ${turn.time}h</p>
+      <p>Su turno a sido editado con éxito y se llevara acabo el ${turn.date} a las ${turn.time}h</p>
       `,
   }
 }
