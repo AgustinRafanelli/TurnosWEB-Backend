@@ -14,7 +14,7 @@ cron.schedule('1 * * * *',()=>{
 
     Task.findAll({ where: { process_date: dateActual, complete:false, name:"Aviso por Email 24hs" }})
     .then(tasks => {
-    if(tasks.length>0){
+        if(tasks.length>0){
         tasks.map(task =>{
             if(hoursActual.toString() === task.dataValues.process_time.substring(0,2))
             { 
@@ -33,11 +33,9 @@ cron.schedule('1 * * * *',()=>{
             }
         })
     }
-        
+    console.log("Se corrio el aviso de 24hs antes, se enviaron ", countSendMail ," mail");   
     })
-    .catch((err) => { console.log(err);});
-
-    console.log("Se corrio el aviso de 24hs antes, se enviaron ", countSendMail ," mail");
+    .catch((err) => { console.log(err);}); 
 })
 
 cron.schedule('1 00 * * *', ()=>{
