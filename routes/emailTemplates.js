@@ -71,14 +71,15 @@ const canceledTurnEmail = function (userEmail, turn) {
   }
 }
 
-const avisoTurno24hs = function (userEmail,date) {
+const avisoTurno24hs = function (userEmail,date,time,nameBranch) {
   return email = {
     to: userEmail,
     from: 'turnoswebp5@gmail.com',
     subject: `Recordatorio: Turno ${date}`,
     html: `
-    <p>Recordatorio: </p>
-    <p>Usted posee un turno el dia ${date} a las 12:00hs en la sucursal</p>
+    <h2>Recordatorio: </h2>
+    <p>Usted posee un turno el dia <strong>${date}</strong> a las <strong>${time}hs</strong>  
+    en la sucursal <strong> ${nameBranch} </strong></p>
     `,
   }
 }
