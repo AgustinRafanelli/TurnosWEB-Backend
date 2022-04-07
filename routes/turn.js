@@ -28,6 +28,7 @@ router.get("/pending/:userId", isLogged, (req, res) => {
 
 //Alta de Turno
 router.post("/", isLogged, (req, res, next) => {
+  
   const turn = req.body;
   const { id, email } = req.user
   User.findOne({ where: { id } })
@@ -36,14 +37,19 @@ router.post("/", isLogged, (req, res, next) => {
       if (typeof msg === "string") return res.status(400).send(msg)
       Turn.findOne({where: {userId: id, branchId: turn.branchId}})
         .then(turn => {
+         
           Branch.findByPk(turn.branchId)
             .then(branch => {
               //Crear una tarea para el envío del mail
+              let DateTimeNow = new Date();
               let diaAlert = new Date(turn.date);
-              let hsAlert = turn.time.substring(0,2) + ":00"
+              let hsAlert = turn.time.substring(0,2) + ":00";
 
+              console.log("Horario Actual: ",DateTimeNow);
+             // console.log("Horario del Turno: ", new Date(turn.date + turn.time));
               //Se resta un día a la fecha que tiene reservado el turno
               diaAlert = formatDate(diaAlert);
+
               let taskNewTurn = {process_date: diaAlert, process_time: hsAlert,
                                 name: "Aviso por Email 24hs", email}
               Task.create(taskNewTurn);
@@ -68,7 +74,20 @@ router.put("/edit/:id", isSameUser, (req, res) => {
       turn.update({ time: req.body.time, date: req.body.date })
         .then(turn => {
           User.findByPk(turn.userId)
-            .then(user => sgMail.send(emails.editedTurnEmail(user.email, turn)))
+            .then(user =>{ 
+              //Actualización de la TAREA para el turno dado de alta con anterioridad
+              Task.findOne({where: { email: user.email, complete: false}})
+              .then(task =>{
+
+                  let diaAlert = new Date(req.body.date);
+
+                  diaAlert = formatDate(diaAlert);
+
+                  task.update({ process_time: turn.time, process_date: diaAlert })
+              })
+
+              sgMail.send(emails.editedTurnEmail(user.email, turn))
+            })
           res.status(202).send(turn)  
         })
     })
@@ -89,7 +108,11 @@ router.put("/state/cancel/:id", isSameUserOrOpetator, (req, res) => {
       turn.update({ state: "canceled" })
         .then(turn => {
           User.findByPk(turn.userId)
-            .then(user => sgMail.send(emails.canceledTurnEmail(user.email, turn)))
+            .then(user => {
+              //Borra la tarea que se creo en el alta
+              Task.destroy({ where: { email: user.email, complete: false}})
+
+              sgMail.send(emails.canceledTurnEmail(user.email, turn))})
           res.status(202).send(turn)
         })
     })

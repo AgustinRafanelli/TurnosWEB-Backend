@@ -62,6 +62,7 @@ const operatorLogin = (req, res, next) => {
       })
   } else next()
 }
+
 const  formatDate = (date) =>{
   var d = new Date(date),
       month = '' + (d.getMonth() + 1),
