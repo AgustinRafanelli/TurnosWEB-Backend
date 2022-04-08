@@ -34,7 +34,7 @@ router.post("/", isLogged, (req, res, next) => {
   User.findOne({ where: { id } })
     .then(user => user.newTurn(turn))
     .then(msg => {
-      if (typeof msg === "string") return res.status(400).send(msg)
+      if (typeof msg === "string") return res.status(400)
       Turn.findOne({where: {userId: id, branchId: turn.branchId}})
         .then(turn => {
          
