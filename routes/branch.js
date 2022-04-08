@@ -27,8 +27,49 @@ router.post("/register", isAdmin, async (req, res) => {
     .catch(err => res.status(400).send(err))
 });
 
+router.delete("/:id", isAdmin, (req, res) => {
+  //Branch.destroy({ where: { id: req.params.id } });
+  Branch.findByPk(req.params.id)
+    .then(branch => {
+      branch.getUser().then(user => user.destroy())
+      Turn.destroy({ where: { branchId: req.params.id } })
+      branch.destroy()
+    })
+    .then(() => res.status(202).send("Sucursal eliminada con exito"))
+    .catch(err => res.status(400).send(err))
+});
+
+router.put("/:id", isAdmin, function (req, res, next) {
+  const { name, coords, turnRange, maxPerTurn } = req.body;
+  Branch.update(
+    {
+      name: name,
+      coords: coords,
+      turnRange: JSON.stringify(turnRange),
+      maxPerTurn: maxPerTurn,
+    },
+    {
+      where: {
+        id: req.params.id,
+      },
+      returning: true
+    }
+  )
+    .then(([_, branch]) => branch[0].getUser())
+    .then(user => user.update({ name }))
+    .then(user => res.sendStatus(204))
+    .catch(next);
+});
+
 router.get("/all", async (req, res) => {
   const branchs = await Branch.findAll();
+  return res.send(branchs);
+});
+
+router.get("/adminview", async (req, res) => {
+  const branchs = await Branch.findAll({
+    include: { model: User, attributes: ["email"] },
+  });
   return res.send(branchs);
 });
 
@@ -39,11 +80,6 @@ router.get("/:id", (req, res, next) => {
       res.send(branch)
     })
     .catch(next)
-});
-
-router.delete("/:id", isAdmin, (req, res) => {
-  Branch.destroy({ where: { id: req.params.id } });
-  res.send("Sucursal eliminada");
 });
 
 /**
