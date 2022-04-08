@@ -111,17 +111,9 @@ router.get('/turnDensity/:branchId/:startDate/:finishDate', (req, res, next) => 
     }
   })
     .then(({ count, rows }) => {
-      let days = [
-        { total: 0 },
-        { total: 0 },
-        { total: 0 },
-        { total: 0 },
-        { total: 0 },
-        { total: 0 },
-        { total: 0 }]
+      let days = [{}, {}, {}, {}, {}, {}, {}]
       rows.map(turn => {
         let date = new Date(turn.date + ' ' + turn.time).getDay()
-        days[date].total++
         if (days[date][turn.time.slice(0, 2)]) days[date][turn.time.slice(0, 2)]++
         else days[date][turn.time.slice(0, 2)] = 1
       })
