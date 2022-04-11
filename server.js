@@ -44,7 +44,7 @@ app.use((err, req, res, next) => {
   res.status(500).send(err.message);
 });
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 db.sync({ force: false }).then(() =>
   app.listen(PORT, () => console.log(`Listening port ${PORT}`))
