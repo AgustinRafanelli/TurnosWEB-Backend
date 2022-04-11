@@ -1,10 +1,14 @@
 const {Sequelize} = require("sequelize")
-
+let db
 if (process.env.NODE_ENV === "production") {
-  var db = new Sequelize(process.env.DATABASE_URL);
+  db = new Sequelize(process.env.DATABASE_URL)
 } else {
-  const db = new Sequelize('cruce', null, null, {
-    host: process.env.PSQL_HOST || 'localhost',
+  db = new Sequelize(
+  'cruce', 
+  null, 
+  null, 
+  {
+    host: 'localhost',
     dialect: 'postgres',
     logging: false,
   })
