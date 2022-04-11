@@ -3,6 +3,8 @@ const router = express.Router();
 const { Branch, User, Turn } = require("../models");
 const { Op } = require("sequelize")
 const { isAdmin } = require("./utils");
+const sgMail = require('../config/sendgrid')
+const emails = require('./emailTemplates')
 
 router.post("/register", isAdmin, async (req, res) => {
   User.create({
@@ -28,11 +30,17 @@ router.post("/register", isAdmin, async (req, res) => {
 });
 
 router.delete("/:id", isAdmin, (req, res) => {
-  //Branch.destroy({ where: { id: req.params.id } });
   Branch.findByPk(req.params.id)
     .then(branch => {
       branch.getUser().then(user => user.destroy())
-      Turn.destroy({ where: { branchId: req.params.id } })
+      Turn.findAll({ where: { branchId: req.params.id } })
+        .then(turns => {
+          turns.map(turn => {
+            turn.getUser()
+              .then(user => sgMail.send(emails.canceledTurnEmail(user.email)))
+          })
+        })
+        .then(() => Turn.destroy({ where: { branchId: req.params.id } }))
       branch.destroy()
     })
     .then(() => res.status(202).send("Sucursal eliminada con exito"))
@@ -103,6 +111,12 @@ router.get("/disponibility/:branchId/:date", (req, res, next) => {
 router.get('/stats/:branchId/:startDate/:finishDate', async (req, res, next) => {
   const { branchId, startDate, finishDate } = req.params
   try {
+    const disponibility = await Branch.findByPk(branchId)
+      .then(branch => {
+        const branchOpen = JSON.parse(branch.turnRange)
+        const hours = branchOpen.close - branchOpen.open
+        return hours * 4 * branch.maxPerTurn
+      })
     const missed = await Turn.count({
       where: {
         branchId,
@@ -130,11 +144,37 @@ router.get('/stats/:branchId/:startDate/:finishDate', async (req, res, next) => 
         state: "canceled"
       }
     })
-    res.send({ missed, assisted, canceled })
+    const pending = await Turn.count({
+      where: {
+        branchId,
+        date: {
+          [Op.between]: [startDate, finishDate]
+        },
+        state: "pending"
+      }
+    })
+    res.send({ disponibility, pending, assisted, missed, canceled })
   } catch (e) {
+    console.log(e)
     res.status(400).send(e)
   }
 })
+
+/* router.get('/turnDensity/:branchId/:startDate/:finishDate', (req, res, next) => {
+  const { branchId, startDate, finishDate } = req.params
+  Turn.findAndCountAll({
+    where: {
+      branchId,
+      date: {
+        [Op.between]: [startDate, finishDate]
+      }
+    }
+  })
+    .then(({ count, rows }) => {
+      
+    })
+    .catch(err => res.status(400).send(err))
+}) */
 
 router.get('/turnDensity/:branchId/:startDate/:finishDate', (req, res, next) => {
   const { branchId, startDate, finishDate } = req.params
@@ -156,6 +196,22 @@ router.get('/turnDensity/:branchId/:startDate/:finishDate', (req, res, next) => 
       res.send(days)
     })
     .catch(err => res.status(400).send(err))
+})
+
+router.get('/turnInAdvnace/all/:startDate/:finishDate', (req, res, next) => {
+  const { branchId, startDate, finishDate } = req.params
+  Turn.findAndCountAll({
+    where: {
+      date: {
+        [Op.between]: [startDate, finishDate]
+      }
+    }
+  })
+    .then(({ count, rows }) => {
+      const reduce = rows.map((turn) => (Date.parse(turn.createdAt) - Date.parse(turn.date + " " + turn.time)) / 3600000)
+      const reduceResult = reduce.reduce((previousValue, currentValue) => previousValue + currentValue, 0);
+      res.send({ average: reduceResult / count })
+    })
 })
 
 router.get('/turnInAdvnace/:branchId/:startDate/:finishDate', (req, res, next) => {
