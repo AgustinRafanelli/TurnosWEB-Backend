@@ -1,4 +1,9 @@
-{
+{"name": "turnosweb",
+  "description": "turn aplication",
+  "version": "1.0.0",
+  "engines": {
+    "node": "12.11.1"
+  },
   "dependencies": {
     "@sendgrid/mail": "^7.6.2",
     "bcrypt": "^5.0.1",
