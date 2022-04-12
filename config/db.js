@@ -3,6 +3,7 @@ let db
 if (process.env.NODE_ENV === "production") {
   db = new Sequelize(new Sequelize(process.env.DATABASE_URL, {
     dialectOptions: {
+      dialect: 'postgres',
       ssl: {
         require: true,
         rejectUnauthorized: false
