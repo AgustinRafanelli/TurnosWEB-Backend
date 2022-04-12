@@ -16,12 +16,13 @@ app.use(morgan("dev"));
 app.use(cookieParser());
 app.use(express.json());
 app.use(cors());
-
+app.enable("trust proxy")
 app.use(
   session({
     secret: "user",
     resave: true,
     saveUninitialized: true,
+    proxy: true,
   })
 );
 app.use(passport.initialize());
