@@ -16,20 +16,14 @@ app.use(morgan("dev"));
 app.use(cookieParser());
 app.use(express.json());
 app.use(cors());
-
-app.use(function (req, res, next) {
-  res.header('Access-Control-Allow-Credentials', true);
-  res.header('Access-Control-Allow-Origin', req.headers.origin);
-  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-  res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
-  next();
-});
+app.enable("trust proxy")
 
 app.use(
   session({
     secret: "user",
     resave: true,
     saveUninitialized: true,
+    proxy: true,
   })
 );
 app.use(passport.initialize());
@@ -40,6 +34,14 @@ passport.use(passportConfig.localStrategyInstance);
 passport.serializeUser(passportConfig.serializeUserCb);
 
 passport.deserializeUser(passportConfig.deserializeUserCb);
+
+app.use(function (req, res, next) {
+  res.header('Access-Control-Allow-Credentials', true);
+  res.header('Access-Control-Allow-Origin', req.headers.origin);
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+  res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
+  next();
+});
 
 app.use("/", routes)
 
