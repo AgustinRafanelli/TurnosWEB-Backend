@@ -160,22 +160,6 @@ router.get('/stats/:branchId/:startDate/:finishDate', async (req, res, next) => 
   }
 })
 
-/* router.get('/turnDensity/:branchId/:startDate/:finishDate', (req, res, next) => {
-  const { branchId, startDate, finishDate } = req.params
-  Turn.findAndCountAll({
-    where: {
-      branchId,
-      date: {
-        [Op.between]: [startDate, finishDate]
-      }
-    }
-  })
-    .then(({ count, rows }) => {
-      
-    })
-    .catch(err => res.status(400).send(err))
-}) */
-
 router.get('/turnDensity/:branchId/:startDate/:finishDate', (req, res, next) => {
   const { branchId, startDate, finishDate } = req.params
   Turn.findAndCountAll({

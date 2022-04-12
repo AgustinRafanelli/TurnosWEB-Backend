@@ -27,6 +27,7 @@
   "scripts": {
     "start": "node server.js",
     "devstart": "nodemon server.js",
+    "postinstall": "node seed.js",
     "seed": "node seed.js"
   },
   "devDependencies": {
