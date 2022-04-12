@@ -1,7 +1,7 @@
 const {Sequelize} = require("sequelize")
 let db
 if (process.env.NODE_ENV === "production") {
-  db = new Sequelize(new Sequelize(process.env.DATABASE_URL, {
+  db = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres',
     dialectOptions: {
       ssl: {
@@ -10,7 +10,6 @@ if (process.env.NODE_ENV === "production") {
       }
     }
   })
-)
 } else {
   db = new Sequelize('cruce', 
   null, 
