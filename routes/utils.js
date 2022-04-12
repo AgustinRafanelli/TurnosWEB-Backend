@@ -4,7 +4,6 @@ const { User, Branch } = require("../models")
  * Revisa que halla un usuario logueado
  */
 const isLogged = (req, res, next) => {
-  console.log(req)
   if (!req.user) res.status(401).send("Será redirigido para ingresar su mail y password")
   else next();
 };
