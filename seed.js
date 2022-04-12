@@ -60,13 +60,13 @@ const branchList = [
   },
   {
     name: "SUCURSAL F",
-    coords: "Parana+3745+Unicenter,Martinez,Buenos Aires,argentina",
+    coords: "Parana+3745+Unicenter,Martinez,Buenos+Aires,argentina",
     maxPerTurn: 4,
     turnRange: JSON.stringify({ open: 8, close: 12 }),
   },
   {
     name: "SUCURSAL G",
-    coords: "RP8+N°+9100+Km.+20,5,Loma+Hermosa,Buenos+Aires,argentina",
+    coords: "Av.+101+Dr.+Ricardo+Balbín+2549,San+Martín,Buenos+Aires,argentina",
     maxPerTurn: 4,
     turnRange: JSON.stringify({ open: 8, close: 12 }),
   },
