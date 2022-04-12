@@ -128,7 +128,7 @@ User.prototype.newTurn = function ({branchId, date, time}) {
       .then( async branch => {
         if(!branch) return "La sucursal elegida no existe"
         const {count} = await Turn.findAndCountAll({ where: { branchId, date, time} })
-        if (count >= branch.maxPerTurn) return "Exede la cantidad maxima de personas por turno"
+        if (count >= branch.maxPerTurn) return "Turno No disponible.Excede la cantidad maxima de personas por turno"
         return this.createTurn({ date, time, state: "pending", branchId} )
       })
     })

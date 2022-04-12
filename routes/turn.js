@@ -34,7 +34,7 @@ router.post("/", isLogged, (req, res, next) => {
   User.findOne({ where: { id } })
     .then(user => user.newTurn(turn))
     .then(msg => {
-      if (typeof msg === "string") return res.status(400)
+      if (typeof msg === "string") {return res.status(400).send(msg)}
       Turn.findOne({where: {userId: id, branchId: turn.branchId}})
         .then(turn => {
          
@@ -58,7 +58,7 @@ router.post("/", isLogged, (req, res, next) => {
               sgMail.send(emails.turnConfirmationEmail(email, turn, branch.name))
             })
         })
-      res.status(201).send(msg)
+      res.status(201).send(msg);
     })
     .catch(next);
 });
