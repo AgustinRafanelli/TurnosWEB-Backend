@@ -2,8 +2,8 @@ const {Sequelize} = require("sequelize")
 let db
 if (process.env.NODE_ENV === "production") {
   db = new Sequelize(new Sequelize(process.env.DATABASE_URL, {
+    dialect: 'postgres',
     dialectOptions: {
-      dialect: 'postgres',
       ssl: {
         require: true,
         rejectUnauthorized: false
