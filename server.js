@@ -15,15 +15,22 @@ const app = express();
 app.use(morgan("dev"));
 app.use(cookieParser());
 app.use(express.json());
-app.use(cors());
-app.enable("trust proxy")
+app.use(cors({
+  credentials: true,
+  origin: [process.evn.FRONTEND_APP_URL]
+}
+));
+app.set("trust proxy", 1);
 
 app.use(
   session({
     secret: "user",
     resave: true,
-    saveUninitialized: true,
-    proxy: true,
+    saveUninitialized: false,
+    cookie: {
+      sameSite: process.env.NODE_ENV === "production" ? 'none' : 'lax',
+      secure: process.env.NODE_ENV === "production", 
+    }
   })
 );
 app.use(passport.initialize());
@@ -35,13 +42,13 @@ passport.serializeUser(passportConfig.serializeUserCb);
 
 passport.deserializeUser(passportConfig.deserializeUserCb);
 
-app.use(function (req, res, next) {
+/* app.use(function (req, res, next) {
   res.header('Access-Control-Allow-Credentials', true);
   res.header('Access-Control-Allow-Origin', req.headers.origin);
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
   res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
   next();
-});
+}); */
 
 app.use("/", routes)
 
