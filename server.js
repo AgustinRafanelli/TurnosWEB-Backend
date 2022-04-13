@@ -2,7 +2,7 @@ const express = require("express");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-const session = require("cookie-session");
+const session = require("express-session");
 const passport = require("passport");
 const passportConfig = require("./config/passport");
 const routes = require("./routes");
@@ -15,11 +15,7 @@ const app = express();
 app.use(morgan("dev"));
 app.use(cookieParser());
 app.use(express.json());
-app.use(cors({
-  credentials: true,
-  origin: [process.env.FRONTEND_APP_URL]
-}
-));
+
 app.set("trust proxy", 1);
 
 app.use(
@@ -49,6 +45,12 @@ passport.deserializeUser(passportConfig.deserializeUserCb);
   res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
   next();
 }); */
+
+app.use(cors({
+  credentials: true,
+  origin: [process.env.FRONTEND_APP_URL]
+}
+));
 
 app.use("/", routes)
 
